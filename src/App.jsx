@@ -158,13 +158,21 @@ const AppLayout = () => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   return (
     <div className="app-container">
+      {/* Mobile overlay */}
+      <div
+        className={`sidebar-overlay ${mobileSidebarOpen ? 'open' : ''}`}
+        onClick={() => setMobileSidebarOpen(false)}
+      />
+
       {/* Sidebar Enterprise */}
       <aside
-        className="sidebar"
+        className={`sidebar ${mobileSidebarOpen ? 'open' : ''}`}
         style={{
           width: sidebarOpen ? 252 : 0,
           minWidth: sidebarOpen ? 252 : 0,
@@ -231,7 +239,13 @@ const AppLayout = () => {
         <header className="topbar">
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <button
-              onClick={() => setSidebarOpen(prev => !prev)}
+              onClick={() => {
+                if (window.innerWidth <= 768) {
+                  setMobileSidebarOpen(prev => !prev);
+                } else {
+                  setSidebarOpen(prev => !prev);
+                }
+              }}
               style={{
                 background: 'none',
                 border: 'none',
