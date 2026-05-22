@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # LuizCar - Sistema ERP para Oficinas Mecânicas
 
 Sistema web desenvolvido para a **Rede Lopes** - oficina do Luiz.
@@ -32,3 +33,6 @@ Sistema web desenvolvido para a **Rede Lopes** - oficina do Luiz.
 - `src/` - Código fonte React
 - `netlify/functions/` - API serverless
 - `dist/` - Build de produção (gerado automaticamente)
+=======
+# luizcar-erp
+>>>>>>> a96b21c74f9588bcf9035da9da76eae094a565b5
