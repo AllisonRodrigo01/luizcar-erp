@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Package, Plus, Search, Edit2, Trash2, X, AlertTriangle, DollarSign, Archive } from 'lucide-react';
+import { api } from '../lib/api';
 
 const emptyForm = { nome: '', quantidade: 0, estoque_minimo: 5, preco_custo: 0, preco_venda: 0 };
 
@@ -35,13 +36,24 @@ const Estoque = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [form, setForm] = useState(emptyForm);
 
-  const [pecas, setPecas] = useState([
-    { id: 1, nome: 'Pastilha de Freio Bosch - Civic', quantidade: 12, estoque_minimo: 5, preco_custo: 85.00, preco_venda: 145.00 },
-    { id: 2, nome: 'Óleo Motor 5W30 Castrol Magnatec', quantidade: 4, estoque_minimo: 8, preco_custo: 28.50, preco_venda: 45.00 },
-    { id: 3, nome: 'Filtro de Óleo Fram PH5317', quantidade: 15, estoque_minimo: 6, preco_custo: 18.00, preco_venda: 35.00 },
-    { id: 4, nome: 'Amortecedor Dianteiro Cofap - Corolla', quantidade: 2, estoque_minimo: 4, preco_custo: 240.00, preco_venda: 399.00 },
-    { id: 5, nome: 'Vela de Ignição NGK Iridium', quantidade: 24, estoque_minimo: 10, preco_custo: 35.00, preco_venda: 65.00 },
-  ]);
+  const [pecas, setPecas] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await api.query('SELECT * FROM estoque ORDER BY nome');
+      setPecas(res.rows || []);
+    } catch (error) {
+      console.error('Erro ao carregar estoque:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const filtered = pecas.filter(p => p.nome.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -54,21 +66,42 @@ const Estoque = () => {
   const openEdit = (p) => { setForm({ ...p }); setEditingId(p.id); setShowModal(true); };
   const confirmDelete = (p) => { setDeleteTarget(p); setShowDeleteModal(true); };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.nome) return;
-    if (editingId) {
-      setPecas(prev => prev.map(p => p.id === editingId ? { ...p, ...form } : p));
-    } else {
-      const newId = pecas.length > 0 ? Math.max(...pecas.map(p => p.id)) + 1 : 1;
-      setPecas(prev => [...prev, { ...form, id: newId }]);
+    const data = {
+      nome: form.nome,
+      descricao: form.descricao || null,
+      quantidade: Number(form.quantidade) || 0,
+      estoque_minimo: Number(form.estoque_minimo) || 5,
+      preco_custo: Number(form.preco_custo) || 0,
+      preco_venda: Number(form.preco_venda) || 0,
+      ativo: 1
+    };
+    try {
+      if (editingId) {
+        await api.update('estoque', data, 'id = ?', [editingId]);
+      } else {
+        await api.insert('estoque', {
+          ...data,
+          criado_em: new Date().toISOString().split('T')[0]
+        });
+      }
+      setShowModal(false);
+      await fetchData();
+    } catch (error) {
+      console.error('Erro ao salvar item no estoque:', error);
     }
-    setShowModal(false);
   };
 
-  const handleDelete = () => {
-    setPecas(prev => prev.filter(p => p.id !== deleteTarget.id));
-    setShowDeleteModal(false);
-    setDeleteTarget(null);
+  const handleDelete = async () => {
+    try {
+      await api.delete('estoque', 'id = ?', [deleteTarget.id]);
+      setShowDeleteModal(false);
+      setDeleteTarget(null);
+      await fetchData();
+    } catch (error) {
+      console.error('Erro ao excluir item do estoque:', error);
+    }
   };
 
   return (
@@ -149,7 +182,9 @@ const Estoque = () => {
             </tr>
           </thead>
           <tbody>
-            {filtered.map(p => {
+            {loading ? (
+              <tr><td colSpan="8" style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>Carregando...</td></tr>
+            ) : filtered.map(p => {
               const isAlert = Number(p.quantidade) <= Number(p.estoque_minimo);
               return (
                 <tr key={p.id}>

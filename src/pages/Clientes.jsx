@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Users, Plus, Search, Edit2, Trash2, X, Phone, Mail, User, CheckCircle, XCircle, Filter } from 'lucide-react';
+import { api } from '../lib/api';
 
 const emptyForm = { nome: '', telefone: '', email: '', cpf: '', endereco: '', ativo: 1 };
 
@@ -36,12 +37,28 @@ const Clientes = () => {
   const [form, setForm] = useState(emptyForm);
   const [filterStatus, setFilterStatus] = useState('todos');
 
-  const [clientes, setClientes] = useState([
-    { id: 1, nome: 'João Silva', telefone: '(11) 98765-4321', email: 'joao@email.com', cpf: '123.456.789-00', endereco: 'Rua das Flores, 100', ativo: 1, criado_em: '10/05/2026' },
-    { id: 2, nome: 'Maria Oliveira', telefone: '(11) 91234-5678', email: 'maria@email.com', cpf: '987.654.321-00', endereco: 'Av. Brasil, 200', ativo: 1, criado_em: '12/05/2026' },
-    { id: 3, nome: 'Carlos Santos', telefone: '(11) 99999-8888', email: 'carlos@email.com', cpf: '111.222.333-44', endereco: 'Rua XV, 300', ativo: 0, criado_em: '15/05/2026' },
-    { id: 4, nome: 'Ana Paula Costa', telefone: '(11) 97777-6666', email: 'ana@email.com', cpf: '555.666.777-88', endereco: 'Rua das Acácias, 55', ativo: 1, criado_em: '18/05/2026' },
-  ]);
+  const [clientes, setClientes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await api.query('SELECT * FROM clientes ORDER BY nome');
+      const mapped = (res.rows || []).map(row => ({
+        ...row,
+        cpf: row.cpf_cnpj || ''
+      }));
+      setClientes(mapped);
+    } catch (error) {
+      console.error('Erro ao carregar clientes:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const filtered = clientes.filter(c => {
     const matchSearch = c.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -55,22 +72,41 @@ const Clientes = () => {
   const openEdit = (c) => { setForm({ ...c }); setEditingId(c.id); setShowModal(true); };
   const confirmDelete = (c) => { setDeleteTarget(c); setShowDeleteModal(true); };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.nome || !form.telefone) return;
-    if (editingId) {
-      setClientes(prev => prev.map(c => c.id === editingId ? { ...c, ...form } : c));
-    } else {
-      const newId = Math.max(...clientes.map(c => c.id)) + 1;
-      const today = new Date().toLocaleDateString('pt-BR');
-      setClientes(prev => [...prev, { ...form, id: newId, criado_em: today }]);
+    const data = {
+      nome: form.nome,
+      telefone: form.telefone,
+      email: form.email || null,
+      cpf_cnpj: form.cpf || null,
+      endereco: form.endereco || null,
+      ativo: Number(form.ativo)
+    };
+    try {
+      if (editingId) {
+        await api.update('clientes', data, 'id = ?', [editingId]);
+      } else {
+        await api.insert('clientes', {
+          ...data,
+          criado_em: new Date().toISOString().split('T')[0]
+        });
+      }
+      setShowModal(false);
+      await fetchData();
+    } catch (error) {
+      console.error('Erro ao salvar cliente:', error);
     }
-    setShowModal(false);
   };
 
-  const handleDelete = () => {
-    setClientes(prev => prev.filter(c => c.id !== deleteTarget.id));
-    setShowDeleteModal(false);
-    setDeleteTarget(null);
+  const handleDelete = async () => {
+    try {
+      await api.delete('clientes', 'id = ?', [deleteTarget.id]);
+      setShowDeleteModal(false);
+      setDeleteTarget(null);
+      await fetchData();
+    } catch (error) {
+      console.error('Erro ao excluir cliente:', error);
+    }
   };
 
   const fieldStyle = { width: '100%', marginBottom: '1rem' };
@@ -142,7 +178,9 @@ const Clientes = () => {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((c) => (
+              {loading ? (
+                <tr><td colSpan="6" style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>Carregando...</td></tr>
+              ) : filtered.map((c) => (
                 <tr key={c.id}>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

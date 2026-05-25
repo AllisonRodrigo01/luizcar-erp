@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Car, Plus, Search, Edit2, Trash2, X, User } from 'lucide-react';
+import { api } from '../lib/api';
 
 const emptyForm = { placa: '', marca: '', modelo: '', ano: new Date().getFullYear(), cor: '', cliente: '', quilometragem: '', combustivel: 'Flex', observacoes: '' };
 
@@ -40,41 +41,76 @@ const Veiculos = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [form, setForm] = useState(emptyForm);
 
-  const [clientes] = useState(['João Silva', 'Maria Oliveira', 'Carlos Santos', 'Ana Paula Costa']);
+  const [clientes, setClientes] = useState([]);
+  const [veiculos, setVeiculos] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [veiculos, setVeiculos] = useState([
-    { id: 1, placa: 'ABC-1234', marca: 'Honda', modelo: 'Civic', ano: 2020, cliente: 'João Silva', cor: 'Prata', quilometragem: '45.000', combustivel: 'Flex', observacoes: '' },
-    { id: 2, placa: 'XYZ-9876', marca: 'Toyota', modelo: 'Corolla', ano: 2022, cliente: 'Maria Oliveira', cor: 'Preto', quilometragem: '22.000', combustivel: 'Flex', observacoes: '' },
-    { id: 3, placa: 'DEF-5678', marca: 'Volkswagen', modelo: 'Gol', ano: 2018, cliente: 'Carlos Santos', cor: 'Branco', quilometragem: '91.500', combustivel: 'Gasolina', observacoes: 'Motor barulhando' },
-    { id: 4, placa: 'GHI-1122', marca: 'Fiat', modelo: 'Strada', ano: 2023, cliente: 'Ana Paula Costa', cor: 'Vermelho', quilometragem: '8.000', combustivel: 'Flex', observacoes: '' },
-  ]);
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [veiculosRes, clientesRes] = await Promise.all([
+        api.query('SELECT v.*, c.nome as cliente_nome FROM veiculos v LEFT JOIN clientes c ON v.cliente_id = c.id ORDER BY v.placa'),
+        api.query('SELECT id, nome FROM clientes ORDER BY nome')
+      ]);
+      setVeiculos(veiculosRes.rows || []);
+      setClientes(clientesRes.rows || []);
+    } catch (error) {
+      console.error('Erro ao carregar veículos/clientes:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const filtered = veiculos.filter(v =>
     v.placa.toLowerCase().includes(searchTerm.toLowerCase()) ||
     v.modelo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     v.marca.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.cliente.toLowerCase().includes(searchTerm.toLowerCase())
+    (v.cliente_nome || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const openNew = () => { setForm(emptyForm); setEditingId(null); setShowModal(true); };
   const openEdit = (v) => { setForm({ ...v }); setEditingId(v.id); setShowModal(true); };
   const confirmDelete = (v) => { setDeleteTarget(v); setShowDeleteModal(true); };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.placa || !form.marca || !form.modelo) return;
-    if (editingId) {
-      setVeiculos(prev => prev.map(v => v.id === editingId ? { ...v, ...form } : v));
-    } else {
-      const newId = Math.max(...veiculos.map(v => v.id)) + 1;
-      setVeiculos(prev => [...prev, { ...form, id: newId }]);
+    const data = {
+      placa: form.placa.toUpperCase(),
+      marca: form.marca,
+      modelo: form.modelo,
+      ano: Number(form.ano) || null,
+      cor: form.cor || null,
+      cliente_id: Number(form.cliente_id) || null
+    };
+    try {
+      if (editingId) {
+        await api.update('veiculos', data, 'id = ?', [editingId]);
+      } else {
+        await api.insert('veiculos', {
+          ...data,
+          criado_em: new Date().toISOString().split('T')[0]
+        });
+      }
+      setShowModal(false);
+      await fetchData();
+    } catch (error) {
+      console.error('Erro ao salvar veículo:', error);
     }
-    setShowModal(false);
   };
 
-  const handleDelete = () => {
-    setVeiculos(prev => prev.filter(v => v.id !== deleteTarget.id));
-    setShowDeleteModal(false);
-    setDeleteTarget(null);
+  const handleDelete = async () => {
+    try {
+      await api.delete('veiculos', 'id = ?', [deleteTarget.id]);
+      setShowDeleteModal(false);
+      setDeleteTarget(null);
+      await fetchData();
+    } catch (error) {
+      console.error('Erro ao excluir veículo:', error);
+    }
   };
 
   const f = { marginBottom: '1rem' };
@@ -100,7 +136,9 @@ const Veiculos = () => {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {loading ? (
+        <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>Carregando...</div>
+      ) : filtered.length === 0 ? (
         <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
           <Car size={40} style={{ opacity: 0.25, marginBottom: '0.75rem' }} />
           <p style={{ fontSize: '0.875rem' }}>Nenhum veículo encontrado.</p>
@@ -143,7 +181,7 @@ const Veiculos = () => {
               <div style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
                   <User size={12} color="var(--color-text-muted)" />
-                  <span>{v.cliente}</span>
+                  <span>{v.cliente_nome || 'Sem proprietário'}</span>
                 </div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                   {v.quilometragem ? `${v.quilometragem} km` : '—'}
@@ -210,9 +248,9 @@ const Veiculos = () => {
             <div style={{ gridColumn: '1 / -1', marginBottom: '0.75rem' }}>
               <label className="input-label">Proprietário / Cliente</label>
               <select className="input-field" style={{ width: '100%' }}
-                value={form.cliente} onChange={e => setForm(p => ({ ...p, cliente: e.target.value }))}>
+                value={form.cliente_id} onChange={e => setForm(p => ({ ...p, cliente_id: e.target.value }))}>
                 <option value="">Selecione o cliente...</option>
-                {clientes.map(c => <option key={c}>{c}</option>)}
+                {clientes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
               </select>
             </div>
             <div style={{ gridColumn: '1 / -1', marginBottom: '0.75rem' }}>
