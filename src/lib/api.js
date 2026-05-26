@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "/.netlify/functions/api";
+export const API_URL = import.meta.env.VITE_API_URL || "/.netlify/functions/api";
 
 export async function migrateDatabase() {
   try {

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { UserPlus, Edit2, Trash2, Users, ShieldCheck, Wrench, Headphones, X } from 'lucide-react';
-import { api } from '../lib/api';
+import { api, API_URL } from '../lib/api';
 
 const roleConfig = {
   'Admin': { icon: ShieldCheck, color: 'var(--color-secondary)', bg: 'rgba(99,102,241,0.08)' },
@@ -70,23 +70,26 @@ const Usuarios = () => {
     setSaving(true);
     setError('');
     try {
+      let res;
       if (editingId) {
         const payload = { action: 'atualizar_usuario', id: editingId, nome: form.nome, login: form.login, nivel_acesso: form.nivel_acesso };
         if (form.senha) payload.senha = form.senha;
-        await fetch("/.netlify/functions/api", {
+        res = await fetch(API_URL, {
           method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
         });
       } else {
-        await fetch("/.netlify/functions/api", {
+        res = await fetch(API_URL, {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ action: 'criar_usuario', nome: form.nome, login: form.login, senha: form.senha, nivel_acesso: form.nivel_acesso }),
         });
       }
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Erro ao salvar');
       setShowModal(false);
       await fetchData();
     } catch (error) {
       console.error('Erro ao salvar usuário:', error);
-      setError('Erro ao salvar. Verifique se o login já existe.');
+      setError(error.message || 'Erro ao salvar. Verifique se o login já existe.');
     } finally {
       setSaving(false);
     }
@@ -94,7 +97,7 @@ const Usuarios = () => {
 
   const handleDelete = async () => {
     try {
-      const res = await fetch("/.netlify/functions/api", {
+      const res = await fetch(API_URL, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: 'delete', table: 'usuarios', where: 'id = ?', whereArgs: [deleteTarget.id] }),
       });
@@ -105,7 +108,7 @@ const Usuarios = () => {
       await fetchData();
     } catch (error) {
       console.error('Erro ao excluir usuário:', error);
-      setError('Erro ao excluir funcionário.');
+      setError(error.message || 'Erro ao excluir funcionário.');
     }
   };
 
