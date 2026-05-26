@@ -330,16 +330,19 @@ const AppRoutes = () => {
 class PageErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, retries: 0 };
   }
   static getDerivedStateFromError(error) {
     return { hasError: true, error };
   }
   componentDidCatch(error, info) {
     console.error('PageErrorBoundary caught:', error, info);
+    if (error.message?.includes('removeChild') && this.state.retries < 2) {
+      setTimeout(() => this.setState(s => ({ hasError: false, error: null, retries: s.retries + 1 })), 200);
+    }
   }
   handleRetry = () => {
-    this.setState({ hasError: false, error: null });
+    this.setState({ hasError: false, error: null, retries: 0 });
   };
   render() {
     if (this.state.hasError) {
