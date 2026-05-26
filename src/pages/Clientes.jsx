@@ -4,8 +4,8 @@ import { api } from '../lib/api';
 
 const emptyForm = { nome: '', telefone: '', email: '', cpf: '', endereco: '', ativo: 1 };
 
-const Modal = ({ title, onClose, children }) => (
-  <div className="modal-overlay" onClick={onClose}>
+const Modal = ({ title, onClose, children, show }) => (
+  <div className="modal-overlay" style={{ display: show ? 'flex' : 'none' }} onClick={onClose}>
     <div className="modal-content" style={{ maxWidth: '520px' }} onClick={e => e.stopPropagation()}>
       <div className="modal-header">
         <h3>{title}</h3>
@@ -238,8 +238,7 @@ const Clientes = () => {
       </div>
 
       {/* Modal Cadastro/Edição */}
-      {showModal && (
-        <Modal title={editingId ? 'Editar Cliente' : 'Novo Cliente'} onClose={() => { setShowModal(false); setErrorMsg(''); }}>
+        <Modal title={editingId ? 'Editar Cliente' : 'Novo Cliente'} show={showModal} onClose={() => { setShowModal(false); setErrorMsg(''); }}>
           {errorMsg && (
             <div style={{
               background: 'rgba(220,38,38,0.08)', color: 'var(--color-danger)',
@@ -291,11 +290,9 @@ const Clientes = () => {
             </button>
           </div>
         </Modal>
-      )}
 
       {/* Modal Confirmação Delete */}
-      {showDeleteModal && deleteTarget && (
-        <Modal title="Confirmar Exclusão" onClose={() => setShowDeleteModal(false)}>
+        <Modal title="Confirmar Exclusão" show={showDeleteModal && !!deleteTarget} onClose={() => setShowDeleteModal(false)}>
           <div style={{ textAlign: 'center', padding: '1rem 0' }}>
             <div style={{
               width: 52, height: 52, borderRadius: '50%', background: 'rgba(220,38,38,0.08)',
@@ -305,7 +302,7 @@ const Clientes = () => {
             </div>
             <h3 style={{ marginBottom: '0.5rem', fontSize: '1rem', fontWeight: 700 }}>Excluir Cliente?</h3>
             <p style={{ marginBottom: '1.5rem', fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
-              O cliente <strong style={{ color: 'var(--color-text-main)' }}>{deleteTarget.nome}</strong> será removido permanentemente.
+              O cliente <strong style={{ color: 'var(--color-text-main)' }}>{deleteTarget?.nome || ''}</strong> será removido permanentemente.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
               <button className="btn btn-secondary" onClick={() => setShowDeleteModal(false)}>Cancelar</button>
@@ -316,7 +313,6 @@ const Clientes = () => {
             </div>
           </div>
         </Modal>
-      )}
     </div>
   );
 };
