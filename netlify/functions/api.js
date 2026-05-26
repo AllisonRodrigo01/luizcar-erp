@@ -1,6 +1,14 @@
 import { createClient } from "@libsql/client";
 import crypto from "crypto";
 
+// Corrige serialização de BigInt retornados pelo libSQL/Turso
+BigInt.prototype.toJSON = function () { return Number(this); };
+
+function jsonResponse(data, status = 200, headers = {}) {
+  const body = JSON.stringify(data);
+  return new Response(body, { status, headers: { ...headers, "Content-Type": "application/json" } });
+}
+
 const TURSO_URL = process.env.TURSO_URL;
 const TURSO_AUTH_TOKEN = process.env.TURSO_AUTH_TOKEN;
 
