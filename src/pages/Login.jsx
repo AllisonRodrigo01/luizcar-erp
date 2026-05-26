@@ -40,7 +40,7 @@ const Login = () => {
       background: 'var(--color-bg-base)', fontFamily: "'Inter', sans-serif",
     }}>
       {/* Left Panel — Brand */}
-      <div style={{
+      <div className="login-brand-panel" style={{
         flex: '1 1 55%', position: 'relative', overflow: 'hidden',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         justifyContent: 'center', minHeight: '100vh',
