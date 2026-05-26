@@ -1,5 +1,19 @@
 const API_URL = import.meta.env.VITE_API_URL || "/.netlify/functions/api";
 
+export async function migrateDatabase() {
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "migrate" }),
+    });
+    return res.ok;
+  } catch (e) {
+    console.warn("Migration call failed (maybe already migrated):", e);
+    return false;
+  }
+}
+
 async function apiCall(payload) {
   const res = await fetch(API_URL, {
     method: "POST",

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { migrateDatabase } from './lib/api';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Car, Settings, LogOut, Wrench, Package,
@@ -410,6 +411,10 @@ const AppRoutes = () => {
 };
 
 function App() {
+  useEffect(() => {
+    migrateDatabase();
+  }, []);
+
   return (
     <ThemeProvider>
       <AuthProvider>

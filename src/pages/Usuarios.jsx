@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { UserPlus, Edit2, Trash2, Users, ShieldCheck, Wrench, Headphones, X, Key } from 'lucide-react';
+import { UserPlus, Edit2, Trash2, Users, ShieldCheck, Wrench, Headphones, X } from 'lucide-react';
 import { api } from '../lib/api';
 
 const roleConfig = {
@@ -34,14 +34,6 @@ const Modal = ({ title, onClose, children }) => (
   </div>
 );
 
-async function hashSenha(senha) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(senha);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
 const Usuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,6 +42,8 @@ const Usuarios = () => {
   const [editingId, setEditingId] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -58,6 +52,7 @@ const Usuarios = () => {
       setUsuarios(res.rows || []);
     } catch (error) {
       console.error('Erro ao carregar usuários:', error);
+      setError('Erro ao carregar lista de funcionários.');
     } finally {
       setLoading(false);
     }
@@ -65,40 +60,52 @@ const Usuarios = () => {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const openNew = () => { setForm(emptyForm); setEditingId(null); setShowModal(true); };
-  const openEdit = (u) => { setForm({ nome: u.nome, login: u.login, senha: '', nivel_acesso: u.nivel_acesso }); setEditingId(u.id); setShowModal(true); };
+  const openNew = () => { setForm(emptyForm); setEditingId(null); setShowModal(true); setError(''); };
+  const openEdit = (u) => { setForm({ nome: u.nome, login: u.login, senha: '', nivel_acesso: u.nivel_acesso }); setEditingId(u.id); setShowModal(true); setError(''); };
   const confirmDelete = (u) => { setDeleteTarget(u); setShowDeleteModal(true); };
 
   const handleSave = async () => {
-    if (!form.nome || !form.login) return;
-    if (!editingId && !form.senha) return;
+    if (!form.nome || !form.login) { setError('Nome e login são obrigatórios.'); return; }
+    if (!editingId && !form.senha) { setError('Senha é obrigatória para novos funcionários.'); return; }
+    setSaving(true);
+    setError('');
     try {
-      const data = { nome: form.nome, login: form.login, nivel_acesso: form.nivel_acesso };
       if (editingId) {
-        await api.update('usuarios', data, 'id = ?', [editingId]);
-        if (form.senha) {
-          const senha_hash = await hashSenha(form.senha);
-          await api.update('usuarios', { senha_hash }, 'id = ?', [editingId]);
-        }
+        const payload = { action: 'atualizar_usuario', id: editingId, nome: form.nome, login: form.login, nivel_acesso: form.nivel_acesso };
+        if (form.senha) payload.senha = form.senha;
+        await fetch("/.netlify/functions/api", {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
+        });
       } else {
-        const senha_hash = await hashSenha(form.senha);
-        await api.insert('usuarios', { ...data, senha_hash });
+        await fetch("/.netlify/functions/api", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: 'criar_usuario', nome: form.nome, login: form.login, senha: form.senha, nivel_acesso: form.nivel_acesso }),
+        });
       }
       setShowModal(false);
       await fetchData();
     } catch (error) {
       console.error('Erro ao salvar usuário:', error);
+      setError('Erro ao salvar. Verifique se o login já existe.');
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleDelete = async () => {
     try {
-      await api.delete('usuarios', 'id = ?', [deleteTarget.id]);
+      const res = await fetch("/.netlify/functions/api", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: 'delete', table: 'usuarios', where: 'id = ?', whereArgs: [deleteTarget.id] }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
       setShowDeleteModal(false);
       setDeleteTarget(null);
       await fetchData();
     } catch (error) {
       console.error('Erro ao excluir usuário:', error);
+      setError('Erro ao excluir funcionário.');
     }
   };
 
@@ -113,6 +120,16 @@ const Usuarios = () => {
           <UserPlus size={16} /> Novo Funcionário
         </button>
       </div>
+
+      {error && (
+        <div style={{
+          padding: '0.75rem 1rem', background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.2)',
+          color: 'var(--color-danger)', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem',
+          fontSize: '0.8125rem', fontWeight: 500
+        }}>
+          {error}
+        </div>
+      )}
 
       <div className="glass-panel" style={{ padding: 0, overflow: 'hidden' }}>
         <table>
@@ -198,8 +215,8 @@ const Usuarios = () => {
             </div>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
               <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancelar</button>
-              <button className="btn btn-primary" onClick={handleSave}>
-                {editingId ? 'Salvar Alterações' : 'Cadastrar Funcionário'}
+              <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+                {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Funcionário'}
               </button>
             </div>
           </div>
