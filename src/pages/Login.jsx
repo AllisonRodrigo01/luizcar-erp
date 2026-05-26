@@ -29,18 +29,22 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      const success = login(username, password);
+    setError('');
+    try {
+      const success = await login(username, password);
       if (success) {
         navigate('/');
       } else {
         setError('Usuário ou senha inválidos.');
         setLoading(false);
       }
-    }, 600);
+    } catch (err) {
+      setError('Erro ao conectar ao servidor.');
+      setLoading(false);
+    }
   };
 
   return (

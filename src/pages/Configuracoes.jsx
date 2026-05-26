@@ -1,50 +1,105 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Building2, Phone, Mail, MapPin, Sliders, MailCheck, Database, Save, CheckCircle } from 'lucide-react';
+import { api } from '../lib/api';
+
+const CONFIG_KEYS = [
+  'razao_social', 'nome_fantasia', 'cnpj', 'inscricao_estadual',
+  'telefone', 'email', 'cep', 'logradouro', 'numero', 'complemento',
+  'bairro', 'cidade', 'uf', 'validade_orcamento', 'observacao_pdf',
+  'smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_crypt'
+];
+
+const defaultValues = {
+  razao_social: 'Rede Lopes Serviços Automotivos LTDA',
+  nome_fantasia: 'Rede Lopes',
+  cnpj: '12.345.678/0001-99',
+  inscricao_estadual: '110.220.330.440',
+  telefone: '(11) 98765-4321',
+  email: 'contato@redelopes.com.br',
+  cep: '01001-000',
+  logradouro: 'Avenida Paulista',
+  numero: '1000',
+  complemento: 'Sala 42',
+  bairro: 'Bela Vista',
+  cidade: 'São Paulo',
+  uf: 'SP',
+  validade_orcamento: 15,
+  observacao_pdf: 'A solução certa para empresas modernas.',
+  smtp_host: 'smtp.redelopes.com.br',
+  smtp_port: 587,
+  smtp_user: 'contato@redelopes.com.br',
+  smtp_pass: '',
+  smtp_crypt: 'STARTTLS'
+};
 
 const Configuracoes = () => {
+  const [empresa, setEmpresa] = useState(defaultValues);
   const [successMsg, setSuccessMsg] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const [empresa, setEmpresa] = useState({
-    razao_social: 'Rede Lopes Serviços Automotivos LTDA',
-    nome_fantasia: 'Rede Lopes',
-    cnpj: '12.345.678/0001-99',
-    inscricao_estadual: '110.220.330.440',
-    telefone: '(11) 98765-4321',
-    email: 'contato@redelopes.com.br',
-    cep: '01001-000',
-    logradouro: 'Avenida Paulista',
-    numero: '1000',
-    complemento: 'Sala 42',
-    bairro: 'Bela Vista',
-    cidade: 'São Paulo',
-    uf: 'SP',
-    validade_orcamento: 15,
-    observacao_pdf: 'A solução certa para empresas modernas.',
-    smtp_host: 'smtp.redelopes.com.br',
-    smtp_port: 587,
-    smtp_user: 'contato@redelopes.com.br',
-    smtp_pass: '••••••••••••',
-    smtp_crypt: 'STARTTLS'
-  });
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const res = await api.query('SELECT chave, valor FROM configuracoes');
+        const configs = {};
+        (res.rows || []).forEach(row => { configs[row.chave] = row.valor; });
+        setEmpresa(prev => ({ ...prev, ...configs }));
+      } catch (error) {
+        console.error('Erro ao carregar configurações:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadConfig();
+  }, []);
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    setSuccessMsg('Configurações salvas com sucesso!');
-    setTimeout(() => setSuccessMsg(''), 4000);
+    try {
+      for (const chave of CONFIG_KEYS) {
+        const valor = String(empresa[chave] ?? '');
+        const exists = await api.query('SELECT COUNT(*) as cnt FROM configuracoes WHERE chave = ?', [chave]);
+        if (Number(exists.rows?.[0]?.cnt || 0) > 0) {
+          await api.update('configuracoes', { valor }, 'chave = ?', [chave]);
+        } else {
+          await api.insert('configuracoes', { chave, valor });
+        }
+      }
+      setSuccessMsg('Configurações salvas com sucesso!');
+      setTimeout(() => setSuccessMsg(''), 4000);
+    } catch (error) {
+      console.error('Erro ao salvar configurações:', error);
+    }
   };
 
   const handleTestSMTP = () => {
     alert('Conexão SMTP estabelecida e autenticada com sucesso!');
   };
 
-  const handleBackup = () => {
-    alert('Backup do banco de dados gerado com sucesso!');
+  const handleBackup = async () => {
+    try {
+      const tables = ['clientes', 'veiculos', 'ordens_servico', 'estoque', 'usuarios', 'configuracoes'];
+      let backup = {};
+      for (const table of tables) {
+        const res = await api.query(`SELECT * FROM ${table}`);
+        backup[table] = res.rows || [];
+      }
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `backup_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      alert('Backup gerado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao criar backup:', error);
+      alert('Erro ao gerar backup.');
+    }
   };
 
   const handleRestore = () => {
-    if (window.confirm('Atenção! A restauração substituirá todos os dados ativos. Deseja prosseguir?')) {
-      alert('Banco de dados restaurado com sucesso!');
-    }
+    alert('A restauração manual deve ser feita via interface do Turso.');
   };
 
   const SectionHeader = ({ icon: Icon, title }) => (
@@ -53,6 +108,19 @@ const Configuracoes = () => {
       <h3 style={{ fontSize: '0.875rem', fontWeight: 700, margin: 0, color: 'var(--color-text-main)' }}>{title}</h3>
     </div>
   );
+
+  if (loading) {
+    return (
+      <div className="animate-fade-in">
+        <div className="page-header">
+          <div>
+            <div className="page-header-title">Configurações</div>
+            <div className="page-header-subtitle">Carregando...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in">
@@ -203,10 +271,7 @@ const Configuracoes = () => {
           <SectionHeader icon={Database} title="Segurança e Backup de Dados" />
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <button type="button" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={handleBackup}>
-              <Database size={14} /> Criar Backup
-            </button>
-            <button type="button" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-warning)', borderColor: 'var(--color-warning)' }} onClick={handleRestore}>
-              <Sliders size={14} /> Restaurar Banco
+              <Database size={14} /> Exportar Backup (JSON)
             </button>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { api } from '../lib/api';
 
 const AuthContext = createContext();
 
@@ -17,19 +18,18 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (username, password) => {
-    // Login offline para demonstração
-    if (username === 'admin' && password === '1234') {
-      const userData = {
-        id: 1,
-        name: 'Administrador',
-        login: 'admin',
-        role: 'admin',
-      };
-      setUser(userData);
-      localStorage.setItem('luizcar_user', JSON.stringify(userData));
-      return true;
+    try {
+      const userData = await api.login(username, password);
+      if (userData) {
+        setUser(userData);
+        localStorage.setItem('luizcar_user', JSON.stringify(userData));
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Erro no login:', error);
+      return false;
     }
-    return false;
   };
 
   const logout = () => {

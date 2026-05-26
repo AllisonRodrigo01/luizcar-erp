@@ -1,7 +1,12 @@
 import { createClient } from "@libsql/client";
+import crypto from "crypto";
 
 const TURSO_URL = process.env.TURSO_URL;
 const TURSO_AUTH_TOKEN = process.env.TURSO_AUTH_TOKEN;
+
+if (!TURSO_URL || !TURSO_AUTH_TOKEN) {
+  console.error("TURSO_URL e TURSO_AUTH_TOKEN devem estar configurados nas variáveis de ambiente do Netlify");
+}
 
 const tursoClient = createClient({
   url: TURSO_URL,
@@ -40,7 +45,7 @@ export default async (req) => {
       }
 
       const result = await tursoClient.execute({
-        sql: "SELECT id, nome, login, nivel_acesso, senha FROM usuarios WHERE login = ? AND ativo = 1",
+        sql: "SELECT id, nome, login, nivel_acesso, senha_hash FROM usuarios WHERE login = ?",
         args: [username],
       });
 
@@ -49,8 +54,8 @@ export default async (req) => {
       }
 
       const user = result.rows[0];
-      // Comparação simples - em produção usar bcrypt
-      if (user.senha !== password) {
+      const hashedPassword = crypto.createHash("sha256").update(password).digest("hex");
+      if (user.senha_hash !== hashedPassword) {
         return new Response(JSON.stringify({ error: "Usuário ou senha inválidos" }), { status: 401, headers });
       }
 
