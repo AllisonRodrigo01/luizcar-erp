@@ -45,7 +45,7 @@ const OrdensServico = () => {
   const [clientes, setClientes] = useState([]);
   const [veiculos, setVeiculos] = useState([]);
   const [mecanicos, setMecanicos] = useState([]);
-  const [company, setCompany] = useState({ nome: 'REDE LOPES', telefone: '', email: '' });
+  const [company, setCompany] = useState({ nome: 'REDE LOPES', telefone: '', email: '', cnpj: '', endereco: '' });
   const [loading, setLoading] = useState(true);
 
   const vehicleLabel = (os) => `${os.marca || ''} ${os.modelo || ''}${os.placa ? ` (${os.placa})` : ''}`.trim();
@@ -67,18 +67,19 @@ const OrdensServico = () => {
       setMecanicos(mecanicosResult.rows || []);
 
       try {
-        const [nomeResult, telefoneResult, emailResult] = await Promise.all([
-          api.query("SELECT valor FROM configuracoes WHERE chave = 'nome_empresa'"),
-          api.query("SELECT valor FROM configuracoes WHERE chave = 'telefone'"),
-          api.query("SELECT valor FROM configuracoes WHERE chave = 'email'")
-        ]);
+        const configRes = await api.query('SELECT chave, valor FROM configuracoes');
+        const cfg = {};
+        (configRes.rows || []).forEach(r => { cfg[r.chave] = r.valor; });
+        const endereco = [cfg.logradouro, cfg.numero, cfg.complemento, cfg.bairro, cfg.cidade, cfg.uf].filter(Boolean).join(', ');
         setCompany({
-          nome: nomeResult.rows?.[0]?.valor || 'REDE LOPES',
-          telefone: telefoneResult.rows?.[0]?.valor || '',
-          email: emailResult.rows?.[0]?.valor || ''
+          nome: cfg.razao_social || cfg.nome_fantasia || 'REDE LOPES',
+          telefone: cfg.telefone || '',
+          email: cfg.email || '',
+          cnpj: cfg.cnpj || '',
+          endereco
         });
       } catch (error) {
-        setCompany({ nome: 'REDE LOPES', telefone: '', email: '' });
+        setCompany({ nome: 'REDE LOPES', telefone: '', email: '', cnpj: '', endereco: '' });
       }
     } catch (error) {
       console.error('Erro ao buscar ordens de serviço:', error);
@@ -320,7 +321,11 @@ const OrdensServico = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--color-border)', paddingBottom: '1rem' }}>
               <div>
                 <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>{company.nome}</h2>
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '2px 0 0 0' }}>Tel: {company.telefone || '-'} | {company.email || '-'}</p>
+                <p style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', margin: '4px 0 0 0', lineHeight: 1.5 }}>
+                  {company.cnpj && <span>CNPJ: {company.cnpj}<br /></span>}
+                  {company.endereco && <span>{company.endereco}<br /></span>}
+                  Tel: {company.telefone || '-'} | {company.email || '-'}
+                </p>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <h3 style={{ fontSize: '0.875rem', fontWeight: 700, margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Comprovante de OS</h3>
