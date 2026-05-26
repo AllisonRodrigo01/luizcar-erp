@@ -19,8 +19,8 @@ const statusConfig = {
   'Cancelada': { bg: 'rgba(220,38,38,0.08)', text: '#dc2626', label: 'Cancelada' },
 };
 
-const Modal = ({ title, onClose, children, maxWidth = '600px' }) => (
-  <div className="modal-overlay" onClick={onClose}>
+const Modal = ({ title, onClose, children, show, maxWidth = '600px' }) => (
+  <div className="modal-overlay" style={{ display: show ? 'flex' : 'none' }} onClick={onClose}>
     <div className="modal-content" style={{ maxWidth }} onClick={e => e.stopPropagation()}>
       <div className="modal-header">
         <h3>{title}</h3>
@@ -251,8 +251,7 @@ const OrdensServico = () => {
       </div>
 
       {/* Modals */}
-      {showModal && (
-        <Modal title={editingId ? `Editar Orçamento #${editingId}` : 'Criar Novo Orçamento'} onClose={() => setShowModal(false)} maxWidth="720px">
+        <Modal show={showModal} title={editingId ? `Editar Orçamento #${editingId}` : 'Criar Novo Orçamento'} onClose={() => setShowModal(false)} maxWidth="720px">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0 0.75rem' }}>
             <div style={{ gridColumn: '1 / 3', marginBottom: '0.75rem' }}>
               <label className="input-label">Cliente *</label>
@@ -313,10 +312,8 @@ const OrdensServico = () => {
             <button className="btn btn-primary" onClick={handleSave}>Confirmar e Salvar</button>
           </div>
         </Modal>
-      )}
 
-      {showViewModal && viewTarget && (
-        <Modal title={`Detalhamento da Ordem de Serviço #${viewTarget.id}`} onClose={() => setShowViewModal(false)} maxWidth="700px">
+        <Modal show={showViewModal} title={`Detalhamento da Ordem de Serviço #${viewTarget?.id || ''}`} onClose={() => setShowViewModal(false)} maxWidth="700px">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', color: 'var(--color-text-main)' }} className="print-area">
             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--color-border)', paddingBottom: '1rem' }}>
               <div>
@@ -395,10 +392,8 @@ const OrdensServico = () => {
             </div>
           </div>
         </Modal>
-      )}
 
-      {showDeleteModal && (
-        <Modal title="Confirmar Exclusão" onClose={() => setShowDeleteModal(false)}>
+        <Modal show={showDeleteModal} title="Confirmar Exclusão" onClose={() => setShowDeleteModal(false)}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <p style={{ fontSize: '0.8125rem' }}>Tem certeza de que deseja excluir permanentemente a Ordem de Serviço <strong>#{deleteTarget?.id}</strong>?</p>
             <p style={{ color: 'var(--color-danger)', fontSize: '0.75rem' }}>Esta ação é permanente e os dados financeiros associados serão perdidos.</p>
@@ -408,7 +403,6 @@ const OrdensServico = () => {
             </div>
           </div>
         </Modal>
-      )}
     </div>
   );
 };

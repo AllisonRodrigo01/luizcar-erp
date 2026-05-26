@@ -4,8 +4,8 @@ import { api } from '../lib/api';
 
 const emptyForm = { nome: '', quantidade: 0, estoque_minimo: 5, preco_custo: 0, preco_venda: 0 };
 
-const Modal = ({ title, onClose, children }) => (
-  <div className="modal-overlay" onClick={onClose}>
+const Modal = ({ title, onClose, children, show }) => (
+  <div className="modal-overlay" style={{ display: show ? 'flex' : 'none' }} onClick={onClose}>
     <div className="modal-content" style={{ maxWidth: '520px' }} onClick={e => e.stopPropagation()}>
       <div className="modal-header">
         <h3>{title}</h3>
@@ -204,8 +204,7 @@ const Estoque = () => {
         </table></div>
       </div>
 
-      {showModal && (
-        <Modal title={editingId ? 'Editar Peça' : 'Cadastrar Peça'} onClose={() => setShowModal(false)}>
+        <Modal show={showModal} title={editingId ? 'Editar Peça' : 'Cadastrar Peça'} onClose={() => setShowModal(false)}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label className="input-label">Descrição da Peça *</label>
@@ -237,10 +236,8 @@ const Estoque = () => {
             </div>
           </div>
         </Modal>
-      )}
 
-      {showDeleteModal && (
-        <Modal title="Excluir Peça" onClose={() => setShowDeleteModal(false)}>
+        <Modal show={showDeleteModal} title="Excluir Peça" onClose={() => setShowDeleteModal(false)}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <p style={{ fontSize: '0.8125rem' }}>Tem certeza de que deseja excluir a peça <strong>{deleteTarget?.nome}</strong>?</p>
             <p style={{ color: 'var(--color-danger)', fontSize: '0.75rem' }}>Esta operação não poderá ser desfeita.</p>
@@ -250,7 +247,6 @@ const Estoque = () => {
             </div>
           </div>
         </Modal>
-      )}
     </div>
   );
 };
