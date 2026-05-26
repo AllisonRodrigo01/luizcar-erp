@@ -171,7 +171,7 @@ const OrdensServico = () => {
           <Search size={15} style={{ position: 'absolute', top: '50%', left: '12px', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
           <input type="text" className="input-field" style={{ width: '100%', paddingLeft: '2.25rem', marginBottom: 0 }}
             placeholder="Buscar por número da OS, cliente ou veículo..."
-            value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} data-gramm="false" />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Filter size={14} color="var(--color-text-muted)" />
@@ -269,7 +269,7 @@ const OrdensServico = () => {
             </div>
             <div style={{ gridColumn: '1 / 2', marginBottom: '0.75rem' }}>
               <label className="input-label">Data Entrada *</label>
-              <input type="date" className="input-field" style={{ width: '100%' }} value={form.data_entrada} onChange={e => setForm({ ...form, data_entrada: e.target.value })} />
+              <input type="date" className="input-field" style={{ width: '100%' }} value={form.data_entrada} onChange={e => setForm({ ...form, data_entrada: e.target.value })} data-gramm="false" />
             </div>
             <div style={{ gridColumn: '2 / 4', marginBottom: '0.75rem' }}>
               <label className="input-label">Mecânico Responsável</label>
@@ -286,15 +286,15 @@ const OrdensServico = () => {
             </div>
             <div style={{ gridColumn: '1 / 3', marginBottom: '0.75rem' }}>
               <label className="input-label">Mão de Obra (R$)</label>
-              <input type="number" className="input-field" style={{ width: '100%' }} value={form.mao_de_obra} onChange={e => setForm({ ...form, mao_de_obra: Number(e.target.value) })} />
+              <input type="number" className="input-field" style={{ width: '100%' }} value={form.mao_de_obra} onChange={e => setForm({ ...form, mao_de_obra: Number(e.target.value) })} data-gramm="false" />
             </div>
             <div style={{ gridColumn: '3 / 4', marginBottom: '0.75rem' }}>
               <label className="input-label">Preço Peças (R$)</label>
-              <input type="number" className="input-field" style={{ width: '100%' }} value={form.pecas_custo} onChange={e => setForm({ ...form, pecas_custo: Number(e.target.value) })} />
+              <input type="number" className="input-field" style={{ width: '100%' }} value={form.pecas_custo} onChange={e => setForm({ ...form, pecas_custo: Number(e.target.value) })} data-gramm="false" />
             </div>
             <div style={{ gridColumn: '4 / 5', marginBottom: '0.75rem' }}>
               <label className="input-label">Comissão (%)</label>
-              <input type="number" className="input-field" style={{ width: '100%' }} value={form.comissao_percentual} onChange={e => setForm({ ...form, comissao_percentual: Number(e.target.value) })} />
+              <input type="number" className="input-field" style={{ width: '100%' }} value={form.comissao_percentual} onChange={e => setForm({ ...form, comissao_percentual: Number(e.target.value) })} data-gramm="false" />
             </div>
             <div style={{ gridColumn: '1 / 5', marginBottom: '0.75rem' }}>
               <label className="input-label">Descrição do Problema / Diagnóstico</label>

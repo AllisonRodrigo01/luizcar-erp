@@ -144,7 +144,7 @@ const Login = () => {
               </div>
               <input type="text" className="input-field" style={{ width: '100%', paddingLeft: '2.5rem' }}
                 placeholder="Digite seu usuário" value={username}
-                onChange={(e) => { setUsername(e.target.value); setError(''); }} required />
+                onChange={(e) => { setUsername(e.target.value); setError(''); }} required data-gramm="false" />
             </div>
           </div>
 
@@ -156,7 +156,7 @@ const Login = () => {
               </div>
               <input type="password" className="input-field" style={{ width: '100%', paddingLeft: '2.5rem' }}
                 placeholder="Sua senha" value={password}
-                onChange={(e) => { setPassword(e.target.value); setError(''); }} required />
+                onChange={(e) => { setPassword(e.target.value); setError(''); }} required data-gramm="false" />
             </div>
           </div>
 

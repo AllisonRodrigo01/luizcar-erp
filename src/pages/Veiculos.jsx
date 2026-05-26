@@ -124,7 +124,7 @@ const Veiculos = () => {
           <Search size={15} style={{ position: 'absolute', top: '50%', left: '12px', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
           <input type="text" className="input-field" style={{ width: '100%', paddingLeft: '2.25rem', marginBottom: 0 }}
             placeholder="Buscar por placa, modelo, marca ou cliente..."
-            value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+            value={searchTerm} onChange={e => setSearchTerm(e.target.value)} data-gramm="false" />
         </div>
       </div>
 
@@ -199,22 +199,22 @@ const Veiculos = () => {
               <label className="input-label">Placa *</label>
               <input className="input-field" style={{ width: '100%', textTransform: 'uppercase', fontFamily: 'monospace', letterSpacing: '1px' }}
                 placeholder="ABC-1234" value={form.placa}
-                onChange={e => setForm(p => ({ ...p, placa: e.target.value.toUpperCase() }))} />
+                onChange={e => setForm(p => ({ ...p, placa: e.target.value.toUpperCase() }))} data-gramm="false" />
             </div>
             <div style={{ marginBottom: '0.75rem' }}>
               <label className="input-label">Marca *</label>
               <input className="input-field" style={{ width: '100%' }} placeholder="Honda..."
-                value={form.marca} onChange={e => setForm(p => ({ ...p, marca: e.target.value }))} />
+                value={form.marca} onChange={e => setForm(p => ({ ...p, marca: e.target.value }))} data-gramm="false" />
             </div>
             <div style={{ marginBottom: '0.75rem' }}>
               <label className="input-label">Modelo *</label>
               <input className="input-field" style={{ width: '100%' }} placeholder="Civic..."
-                value={form.modelo} onChange={e => setForm(p => ({ ...p, modelo: e.target.value }))} />
+                value={form.modelo} onChange={e => setForm(p => ({ ...p, modelo: e.target.value }))} data-gramm="false" />
             </div>
             <div style={{ marginBottom: '0.75rem' }}>
               <label className="input-label">Ano</label>
               <input className="input-field" style={{ width: '100%' }} type="number" min="1990" max="2030"
-                value={form.ano} onChange={e => setForm(p => ({ ...p, ano: e.target.value }))} />
+                value={form.ano} onChange={e => setForm(p => ({ ...p, ano: e.target.value }))} data-gramm="false" />
             </div>
             <div style={{ marginBottom: '0.75rem' }}>
               <label className="input-label">Cor</label>
@@ -234,7 +234,7 @@ const Veiculos = () => {
             <div style={{ marginBottom: '0.75rem' }}>
               <label className="input-label">Quilometragem</label>
               <input className="input-field" style={{ width: '100%' }} placeholder="45.000"
-                value={form.quilometragem} onChange={e => setForm(p => ({ ...p, quilometragem: e.target.value }))} />
+                value={form.quilometragem} onChange={e => setForm(p => ({ ...p, quilometragem: e.target.value }))} data-gramm="false" />
             </div>
             <div style={{ gridColumn: '1 / -1', marginBottom: '0.75rem' }}>
               <label className="input-label">Proprietário / Cliente</label>

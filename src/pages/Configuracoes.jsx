@@ -147,20 +147,20 @@ const Configuracoes = () => {
             <SectionHeader icon={Building2} title="Identificação da Oficina" />
             <div className="input-group" style={{ marginBottom: '0.75rem' }}>
               <label className="input-label">Razão Social *</label>
-              <input type="text" className="input-field" value={empresa.razao_social} onChange={e => setEmpresa({...empresa, razao_social: e.target.value})} required />
+              <input type="text" className="input-field" value={empresa.razao_social} onChange={e => setEmpresa({...empresa, razao_social: e.target.value})} required data-gramm="false" />
             </div>
             <div className="input-group" style={{ marginBottom: '0.75rem' }}>
               <label className="input-label">Nome Fantasia</label>
-              <input type="text" className="input-field" value={empresa.nome_fantasia} onChange={e => setEmpresa({...empresa, nome_fantasia: e.target.value})} />
+              <input type="text" className="input-field" value={empresa.nome_fantasia} onChange={e => setEmpresa({...empresa, nome_fantasia: e.target.value})} data-gramm="false" />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="input-group" style={{ marginBottom: 0 }}>
                 <label className="input-label">CNPJ</label>
-                <input type="text" className="input-field" value={empresa.cnpj} onChange={e => setEmpresa({...empresa, cnpj: e.target.value})} />
+                <input type="text" className="input-field" value={empresa.cnpj} onChange={e => setEmpresa({...empresa, cnpj: e.target.value})} data-gramm="false" />
               </div>
               <div className="input-group" style={{ marginBottom: 0 }}>
                 <label className="input-label">Inscrição Estadual</label>
-                <input type="text" className="input-field" value={empresa.inscricao_estadual} onChange={e => setEmpresa({...empresa, inscricao_estadual: e.target.value})} />
+                <input type="text" className="input-field" value={empresa.inscricao_estadual} onChange={e => setEmpresa({...empresa, inscricao_estadual: e.target.value})} data-gramm="false" />
               </div>
             </div>
           </div>
@@ -169,11 +169,11 @@ const Configuracoes = () => {
             <SectionHeader icon={Phone} title="Contato e Comunicação" />
             <div className="input-group" style={{ marginBottom: '0.75rem' }}>
               <label className="input-label">Telefone de Suporte</label>
-              <input type="text" className="input-field" value={empresa.telefone} onChange={e => setEmpresa({...empresa, telefone: e.target.value})} />
+              <input type="text" className="input-field" value={empresa.telefone} onChange={e => setEmpresa({...empresa, telefone: e.target.value})} data-gramm="false" />
             </div>
             <div className="input-group" style={{ marginBottom: '0.75rem' }}>
               <label className="input-label">E-mail Comercial</label>
-              <input type="email" className="input-field" value={empresa.email} onChange={e => setEmpresa({...empresa, email: e.target.value})} />
+              <input type="email" className="input-field" value={empresa.email} onChange={e => setEmpresa({...empresa, email: e.target.value})} data-gramm="false" />
             </div>
             <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.5rem', lineHeight: '1.5' }}>
               Estes dados serão apresentados no cabeçalho das ordens de serviço impressas e orçamentos exportados em PDF.
@@ -186,33 +186,33 @@ const Configuracoes = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: '1rem' }}>
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label className="input-label">CEP</label>
-              <input type="text" className="input-field" value={empresa.cep} onChange={e => setEmpresa({...empresa, cep: e.target.value})} />
+              <input type="text" className="input-field" value={empresa.cep} onChange={e => setEmpresa({...empresa, cep: e.target.value})} data-gramm="false" />
             </div>
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label className="input-label">Logradouro</label>
-              <input type="text" className="input-field" value={empresa.logradouro} onChange={e => setEmpresa({...empresa, logradouro: e.target.value})} />
+              <input type="text" className="input-field" value={empresa.logradouro} onChange={e => setEmpresa({...empresa, logradouro: e.target.value})} data-gramm="false" />
             </div>
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label className="input-label">Número</label>
-              <input type="text" className="input-field" value={empresa.numero} onChange={e => setEmpresa({...empresa, numero: e.target.value})} />
+              <input type="text" className="input-field" value={empresa.numero} onChange={e => setEmpresa({...empresa, numero: e.target.value})} data-gramm="false" />
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr 1fr', gap: '1rem', marginTop: '1rem' }}>
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label className="input-label">Complemento</label>
-              <input type="text" className="input-field" value={empresa.complemento} onChange={e => setEmpresa({...empresa, complemento: e.target.value})} />
+              <input type="text" className="input-field" value={empresa.complemento} onChange={e => setEmpresa({...empresa, complemento: e.target.value})} data-gramm="false" />
             </div>
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label className="input-label">Bairro</label>
-              <input type="text" className="input-field" value={empresa.bairro} onChange={e => setEmpresa({...empresa, bairro: e.target.value})} />
+              <input type="text" className="input-field" value={empresa.bairro} onChange={e => setEmpresa({...empresa, bairro: e.target.value})} data-gramm="false" />
             </div>
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label className="input-label">Cidade</label>
-              <input type="text" className="input-field" value={empresa.cidade} onChange={e => setEmpresa({...empresa, cidade: e.target.value})} />
+              <input type="text" className="input-field" value={empresa.cidade} onChange={e => setEmpresa({...empresa, cidade: e.target.value})} data-gramm="false" />
             </div>
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label className="input-label">UF</label>
-              <input type="text" className="input-field" value={empresa.uf} onChange={e => setEmpresa({...empresa, uf: e.target.value})} maxLength={2} />
+              <input type="text" className="input-field" value={empresa.uf} onChange={e => setEmpresa({...empresa, uf: e.target.value})} maxLength={2} data-gramm="false" />
             </div>
           </div>
         </div>
@@ -222,7 +222,7 @@ const Configuracoes = () => {
             <SectionHeader icon={Sliders} title="Parâmetros do Sistema" />
             <div className="input-group" style={{ marginBottom: '0.75rem' }}>
               <label className="input-label">Validade do Orçamento (Dias)</label>
-              <input type="number" className="input-field" value={empresa.validade_orcamento} onChange={e => setEmpresa({...empresa, validade_orcamento: Number(e.target.value)})} min={1} />
+              <input type="number" className="input-field" value={empresa.validade_orcamento} onChange={e => setEmpresa({...empresa, validade_orcamento: Number(e.target.value)})} min={1} data-gramm="false" />
             </div>
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label className="input-label">Texto Rodapé PDF</label>
@@ -236,21 +236,21 @@ const Configuracoes = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
               <div className="input-group" style={{ marginBottom: '0.75rem' }}>
                 <label className="input-label">Servidor SMTP</label>
-                <input type="text" className="input-field" value={empresa.smtp_host} onChange={e => setEmpresa({...empresa, smtp_host: e.target.value})} />
+                <input type="text" className="input-field" value={empresa.smtp_host} onChange={e => setEmpresa({...empresa, smtp_host: e.target.value})} data-gramm="false" />
               </div>
               <div className="input-group" style={{ marginBottom: '0.75rem' }}>
                 <label className="input-label">Porta</label>
-                <input type="number" className="input-field" value={empresa.smtp_port} onChange={e => setEmpresa({...empresa, smtp_port: Number(e.target.value)})} />
+                <input type="number" className="input-field" value={empresa.smtp_port} onChange={e => setEmpresa({...empresa, smtp_port: Number(e.target.value)})} data-gramm="false" />
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="input-group" style={{ marginBottom: '0.75rem' }}>
                 <label className="input-label">Usuário / E-mail</label>
-                <input type="text" className="input-field" value={empresa.smtp_user} onChange={e => setEmpresa({...empresa, smtp_user: e.target.value})} />
+                <input type="text" className="input-field" value={empresa.smtp_user} onChange={e => setEmpresa({...empresa, smtp_user: e.target.value})} data-gramm="false" />
               </div>
               <div className="input-group" style={{ marginBottom: '0.75rem' }}>
                 <label className="input-label">Senha SMTP</label>
-                <input type="password" className="input-field" value={empresa.smtp_pass} onChange={e => setEmpresa({...empresa, smtp_pass: e.target.value})} />
+                <input type="password" className="input-field" value={empresa.smtp_pass} onChange={e => setEmpresa({...empresa, smtp_pass: e.target.value})} data-gramm="false" />
               </div>
             </div>
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>

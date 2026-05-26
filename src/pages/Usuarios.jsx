@@ -183,17 +183,17 @@ const Usuarios = () => {
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label className="input-label">Nome Completo *</label>
               <input className="input-field" style={{ width: '100%' }} placeholder="Nome do funcionário"
-                value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} />
+                value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} data-gramm="false" />
             </div>
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label className="input-label">Login *</label>
               <input className="input-field" style={{ width: '100%' }} placeholder="usuario.login"
-                value={form.login} onChange={e => setForm(f => ({ ...f, login: e.target.value }))} />
+                value={form.login} onChange={e => setForm(f => ({ ...f, login: e.target.value }))} data-gramm="false" />
             </div>
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label className="input-label">{editingId ? 'Nova Senha (deixe vazio para manter)' : 'Senha *'}</label>
               <input className="input-field" style={{ width: '100%' }} type="password" placeholder="••••••"
-                value={form.senha} onChange={e => setForm(f => ({ ...f, senha: e.target.value }))} />
+                value={form.senha} onChange={e => setForm(f => ({ ...f, senha: e.target.value }))} data-gramm="false" />
             </div>
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label className="input-label">Nível de Acesso *</label>

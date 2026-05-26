@@ -151,7 +151,7 @@ const Estoque = () => {
           <Search size={15} style={{ position: 'absolute', top: '50%', left: '12px', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
           <input type="text" className="input-field" style={{ width: '100%', paddingLeft: '2.25rem', marginBottom: 0 }}
             placeholder="Buscar peças pelo nome..."
-            value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+            value={searchTerm} onChange={e => setSearchTerm(e.target.value)} data-gramm="false" />
         </div>
       </div>
 
@@ -208,26 +208,26 @@ const Estoque = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label className="input-label">Descrição da Peça *</label>
-              <input type="text" className="input-field" value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })} placeholder="Ex: Pastilha de freio dianteira Bosch" />
+              <input type="text" className="input-field" value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })} placeholder="Ex: Pastilha de freio dianteira Bosch" data-gramm="false" />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="input-group" style={{ marginBottom: 0 }}>
                 <label className="input-label">Quantidade *</label>
-                <input type="number" className="input-field" value={form.quantidade} onChange={e => setForm({ ...form, quantidade: Number(e.target.value) })} />
+                <input type="number" className="input-field" value={form.quantidade} onChange={e => setForm({ ...form, quantidade: Number(e.target.value) })} data-gramm="false" />
               </div>
               <div className="input-group" style={{ marginBottom: 0 }}>
                 <label className="input-label">Estoque Mínimo *</label>
-                <input type="number" className="input-field" value={form.estoque_minimo} onChange={e => setForm({ ...form, estoque_minimo: Number(e.target.value) })} />
+                <input type="number" className="input-field" value={form.estoque_minimo} onChange={e => setForm({ ...form, estoque_minimo: Number(e.target.value) })} data-gramm="false" />
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="input-group" style={{ marginBottom: 0 }}>
                 <label className="input-label">Preço Custo (R$) *</label>
-                <input type="number" step="0.01" className="input-field" value={form.preco_custo} onChange={e => setForm({ ...form, preco_custo: Number(e.target.value) })} />
+                <input type="number" step="0.01" className="input-field" value={form.preco_custo} onChange={e => setForm({ ...form, preco_custo: Number(e.target.value) })} data-gramm="false" />
               </div>
               <div className="input-group" style={{ marginBottom: 0 }}>
                 <label className="input-label">Preço Venda (R$) *</label>
-                <input type="number" step="0.01" className="input-field" value={form.preco_venda} onChange={e => setForm({ ...form, preco_venda: Number(e.target.value) })} />
+                <input type="number" step="0.01" className="input-field" value={form.preco_venda} onChange={e => setForm({ ...form, preco_venda: Number(e.target.value) })} data-gramm="false" />
               </div>
             </div>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>

@@ -19,7 +19,7 @@ import Estoque from './pages/Estoque';
 import Financeiro from './pages/Financeiro';
 import Configuracoes from './pages/Configuracoes';
 
-const SidebarItem = ({ icon: Icon, label, to, requireAdmin, subItems }) => {
+const SidebarItem = ({ icon: Icon, label, to, requireAdmin, subItems, onNavigate }) => {
   const location = useLocation();
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
@@ -54,12 +54,6 @@ const SidebarItem = ({ icon: Icon, label, to, requireAdmin, subItems }) => {
     </>
   );
 
-  const closeMobile = () => {
-    if (window.innerWidth <= 768) {
-      window.dispatchEvent(new CustomEvent('closemobilemenu'));
-    }
-  };
-
   if (hasSubItems) {
     return (
       <div style={{ marginBottom: '0.125rem' }}>
@@ -67,7 +61,7 @@ const SidebarItem = ({ icon: Icon, label, to, requireAdmin, subItems }) => {
         {isOpen && (
           <div style={{ padding: '0.25rem 0 0.25rem 2.75rem' }}>
             {subItems.map((sub, i) => (
-              <Link key={i} to={sub.to} onClick={closeMobile} style={{
+              <Link key={i} to={sub.to} onClick={onNavigate} style={{
                 display: 'block', padding: '0.4rem 0.75rem', textDecoration: 'none',
                 color: location.pathname === sub.to ? '#ffffff' : '#64748b',
                 fontSize: '0.75rem', fontWeight: 500, borderRadius: '6px',
@@ -82,7 +76,7 @@ const SidebarItem = ({ icon: Icon, label, to, requireAdmin, subItems }) => {
     );
   }
 
-  return <Link to={to} style={itemStyle} onClick={closeMobile}>{content}</Link>;
+  return <Link to={to} style={itemStyle} onClick={onNavigate}>{content}</Link>;
 };
 
 const PrivateRoute = ({ children, requireAdmin }) => {
@@ -128,15 +122,18 @@ const Breadcrumb = () => {
 const AppLayout = () => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   useEffect(() => {
-    const handler = () => window.innerWidth <= 768 && setMobileSidebarOpen(false);
-    window.addEventListener('closemobilemenu', handler);
-    return () => window.removeEventListener('closemobilemenu', handler);
-  }, []);
+    setMobileSidebarOpen(false);
+  }, [location.pathname]);
+
+  const closeMobile = () => {
+    if (window.innerWidth <= 768) setMobileSidebarOpen(false);
+  };
 
   const menuItems = [
     { section: 'Principal', items: [
@@ -193,7 +190,7 @@ const AppLayout = () => {
             <React.Fragment key={idx}>
               <div className="sidebar-section-label">{section.section}</div>
               {section.items.map((item, i) => (
-                <SidebarItem key={i} icon={item.icon} label={item.label} to={item.to} requireAdmin={item.admin} />
+                <SidebarItem key={i} icon={item.icon} label={item.label} to={item.to} requireAdmin={item.admin} onNavigate={closeMobile} />
               ))}
             </React.Fragment>
           ))}

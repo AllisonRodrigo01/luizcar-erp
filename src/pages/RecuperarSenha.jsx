@@ -76,7 +76,7 @@ const RecuperarSenha = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                />
+                  data-gramm="false" />
               </div>
             </div>
 
