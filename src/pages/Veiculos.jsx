@@ -53,12 +53,16 @@ const Veiculos = () => {
     fetchData();
   }, [fetchData]);
 
-  const filtered = veiculos.filter(v =>
-    v.placa.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.modelo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.marca.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (v.cliente_nome || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filtered = veiculos.filter(v => {
+    const placa = v.placa || '';
+    const modelo = v.modelo || '';
+    const marca = v.marca || '';
+    const cliente = v.cliente_nome || '';
+    return placa.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      modelo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      marca.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cliente.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   const openNew = () => { setForm(emptyForm); setEditingId(null); setShowModal(true); };
   const openEdit = (v) => { setForm({ ...v }); setEditingId(v.id); setShowModal(true); };

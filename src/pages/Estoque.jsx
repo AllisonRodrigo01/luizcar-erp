@@ -43,7 +43,7 @@ const Estoque = () => {
     fetchData();
   }, [fetchData]);
 
-  const filtered = pecas.filter(p => p.nome.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filtered = pecas.filter(p => (p.nome || '').toLowerCase().includes(searchTerm.toLowerCase()));
 
   const totalItens = pecas.reduce((acc, item) => acc + Number(item.quantidade), 0);
   const baixoEstoque = pecas.filter(p => Number(p.quantidade) <= Number(p.estoque_minimo)).length;

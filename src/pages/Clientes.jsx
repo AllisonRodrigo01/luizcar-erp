@@ -50,9 +50,13 @@ const Clientes = () => {
   }, [fetchData]);
 
   const filtered = clientes.filter(c => {
-    const matchSearch = c.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.telefone.includes(searchTerm) || c.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.cpf.includes(searchTerm);
+    const nome = c.nome || '';
+    const telefone = c.telefone || '';
+    const email = c.email || '';
+    const cpf = c.cpf || '';
+    const matchSearch = nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      telefone.includes(searchTerm) || email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cpf.includes(searchTerm);
     const matchStatus = filterStatus === 'todos' || (filterStatus === 'ativo' ? c.ativo : !c.ativo);
     return matchSearch && matchStatus;
   });
