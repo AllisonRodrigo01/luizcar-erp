@@ -327,17 +327,53 @@ const AppRoutes = () => {
   );
 };
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    console.error('ErrorBoundary caught:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          minHeight: '100vh', background: 'var(--color-bg-base)', color: 'var(--color-text-main)',
+          padding: '2rem', textAlign: 'center', fontFamily: 'Inter, sans-serif'
+        }}>
+          <ShieldCheck size={48} color="var(--color-danger)" />
+          <h1 style={{ margin: '1rem 0 0.5rem', fontSize: '1.25rem', fontWeight: 700 }}>Algo deu errado</h1>
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', maxWidth: 400 }}>
+            Ocorreu um erro inesperado. Tente recarregar a página.
+          </p>
+          <button onClick={() => window.location.reload()} className="btn btn-primary" style={{ marginTop: '1rem' }}>
+            Recarregar Página
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function App() {
   useEffect(() => { migrateDatabase(); }, []);
 
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <Router>
-          <AppRoutes />
-        </Router>
-      </AuthProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <Router>
+            <AppRoutes />
+          </Router>
+        </AuthProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

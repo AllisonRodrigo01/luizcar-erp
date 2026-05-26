@@ -185,7 +185,7 @@ const Clientes = () => {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         color: 'white', fontWeight: 600, fontSize: '0.75rem'
                       }}>
-                        {c.nome.charAt(0)}
+                        {(c.nome || '?').charAt(0)}
                       </div>
                       <div>
                         <div style={{ fontWeight: 600, fontSize: '0.8125rem', color: 'var(--color-text-main)' }}>{c.nome}</div>
