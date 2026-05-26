@@ -143,11 +143,21 @@ export default async (req) => {
       return new Response(JSON.stringify({ error: "Ação não especificada" }), { status: 400, headers });
     }
 
-    // ===== MIGRATE (cria tabelas se não existirem) =====
+    // ===== MIGRATE (cria tabelas e admin padrão) =====
     if (action === "migrate") {
       for (const stmt of SCHEMA_SQL.split(";").filter(s => s.trim())) {
         try { await tursoClient.execute({ sql: stmt }); } catch (e) { console.warn("Migration stmt:", e.message); }
       }
+      try {
+        const adminCheck = await tursoClient.execute({ sql: "SELECT COUNT(*) as cnt FROM usuarios" });
+        if (Number(adminCheck.rows[0]?.cnt || 0) === 0) {
+          const adminHash = crypto.createHash("sha256").update("admin").digest("hex");
+          await tursoClient.execute({
+            sql: "INSERT INTO usuarios (nome, login, senha_hash, nivel_acesso) VALUES (?, ?, ?, ?)",
+            args: ["Administrador", "admin", adminHash, "Admin"],
+          });
+        }
+      } catch (e) { console.warn("Seed admin error:", e.message); }
       return new Response(JSON.stringify({ success: true }), { status: 200, headers });
     }
 
