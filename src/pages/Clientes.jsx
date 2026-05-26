@@ -128,6 +128,7 @@ const Clientes = () => {
             className="input-field"
             style={{ width: '100%', paddingLeft: '2.25rem', marginBottom: 0 }}
             placeholder="Buscar por nome, telefone, email ou CPF..."
+            data-gramm="false"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />
@@ -251,27 +252,27 @@ const Clientes = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 1rem' }}>
             <div style={{ ...fieldStyle, gridColumn: '1 / -1' }}>
               <label className="input-label">Nome Completo *</label>
-              <input className="input-field" style={{ width: '100%' }} placeholder="Nome do cliente"
+              <input className="input-field" style={{ width: '100%' }} placeholder="Nome do cliente" data-gramm="false"
                 value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} />
             </div>
             <div style={fieldStyle}>
               <label className="input-label">Telefone *</label>
-              <input className="input-field" style={{ width: '100%' }} placeholder="(00) 00000-0000"
+              <input className="input-field" style={{ width: '100%' }} placeholder="(00) 00000-0000" data-gramm="false"
                 value={form.telefone} onChange={e => setForm(f => ({ ...f, telefone: e.target.value }))} />
             </div>
             <div style={fieldStyle}>
               <label className="input-label">CPF</label>
-              <input className="input-field" style={{ width: '100%' }} placeholder="000.000.000-00"
+              <input className="input-field" style={{ width: '100%' }} placeholder="000.000.000-00" data-gramm="false"
                 value={form.cpf} onChange={e => setForm(f => ({ ...f, cpf: e.target.value }))} />
             </div>
             <div style={{ ...fieldStyle, gridColumn: '1 / -1' }}>
               <label className="input-label">E-mail</label>
-              <input className="input-field" style={{ width: '100%' }} placeholder="email@exemplo.com" type="email"
+              <input className="input-field" style={{ width: '100%' }} placeholder="email@exemplo.com" type="email" data-gramm="false"
                 value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
             </div>
             <div style={{ ...fieldStyle, gridColumn: '1 / -1' }}>
               <label className="input-label">Endereço</label>
-              <input className="input-field" style={{ width: '100%' }} placeholder="Rua, número, bairro"
+              <input className="input-field" style={{ width: '100%' }} placeholder="Rua, número, bairro" data-gramm="false"
                 value={form.endereco} onChange={e => setForm(f => ({ ...f, endereco: e.target.value }))} />
             </div>
             <div style={{ ...fieldStyle, gridColumn: '1 / -1' }}>

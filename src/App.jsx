@@ -301,14 +301,14 @@ const AppLayout = () => {
 
         <div style={{ padding: '1.75rem 2rem', flex: 1 }}>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/clientes" element={<Clientes />} />
-            <Route path="/veiculos" element={<Veiculos />} />
-            <Route path="/os" element={<OrdensServico />} />
-            <Route path="/estoque" element={<PrivateRoute requireAdmin={true}><Estoque /></PrivateRoute>} />
-            <Route path="/financeiro" element={<PrivateRoute requireAdmin={true}><Financeiro /></PrivateRoute>} />
-            <Route path="/usuarios" element={<PrivateRoute requireAdmin={true}><Usuarios /></PrivateRoute>} />
-            <Route path="/config" element={<PrivateRoute requireAdmin={true}><Configuracoes /></PrivateRoute>} />
+            <Route path="/" element={<PageErrorBoundary><Dashboard /></PageErrorBoundary>} />
+            <Route path="/clientes" element={<PageErrorBoundary><Clientes /></PageErrorBoundary>} />
+            <Route path="/veiculos" element={<PageErrorBoundary><Veiculos /></PageErrorBoundary>} />
+            <Route path="/os" element={<PageErrorBoundary><OrdensServico /></PageErrorBoundary>} />
+            <Route path="/estoque" element={<PageErrorBoundary><PrivateRoute requireAdmin={true}><Estoque /></PrivateRoute></PageErrorBoundary>} />
+            <Route path="/financeiro" element={<PageErrorBoundary><PrivateRoute requireAdmin={true}><Financeiro /></PrivateRoute></PageErrorBoundary>} />
+            <Route path="/usuarios" element={<PageErrorBoundary><PrivateRoute requireAdmin={true}><Usuarios /></PrivateRoute></PageErrorBoundary>} />
+            <Route path="/config" element={<PageErrorBoundary><PrivateRoute requireAdmin={true}><Configuracoes /></PrivateRoute></PageErrorBoundary>} />
           </Routes>
         </div>
       </main>
@@ -327,7 +327,7 @@ const AppRoutes = () => {
   );
 };
 
-class ErrorBoundary extends React.Component {
+class PageErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -336,24 +336,30 @@ class ErrorBoundary extends React.Component {
     return { hasError: true, error };
   }
   componentDidCatch(error, info) {
-    console.error('ErrorBoundary caught:', error, info);
+    console.error('PageErrorBoundary caught:', error, info);
   }
+  handleRetry = () => {
+    this.setState({ hasError: false, error: null });
+  };
   render() {
     if (this.state.hasError) {
       return (
         <div style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          minHeight: '100vh', background: 'var(--color-bg-base)', color: 'var(--color-text-main)',
-          padding: '2rem', textAlign: 'center', fontFamily: 'Inter, sans-serif'
+          minHeight: '60vh', color: 'var(--color-text-main)', padding: '2rem', textAlign: 'center'
         }}>
-          <ShieldCheck size={48} color="var(--color-danger)" />
-          <h1 style={{ margin: '1rem 0 0.5rem', fontSize: '1.25rem', fontWeight: 700 }}>Algo deu errado</h1>
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', maxWidth: 400 }}>
-            Ocorreu um erro inesperado. Tente recarregar a página.
+          <ShieldCheck size={40} color="var(--color-danger)" />
+          <h3 style={{ margin: '1rem 0 0.5rem', fontSize: '1rem', fontWeight: 700 }}>Erro ao carregar página</h3>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', maxWidth: 360 }}>
+            {this.state.error?.message?.includes('removeChild')
+              ? 'Erro de sincronização do React. Clique em "Tentar novamente" para recarregar.'
+              : `Ocorreu um erro inesperado: ${this.state.error?.message || 'Erro desconhecido'}`
+            }
           </p>
-          <button onClick={() => window.location.reload()} className="btn btn-primary" style={{ marginTop: '1rem' }}>
-            Recarregar Página
-          </button>
+          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
+            <button onClick={this.handleRetry} className="btn btn-primary">Tentar novamente</button>
+            <button onClick={() => window.location.reload()} className="btn btn-secondary">Recarregar página</button>
+          </div>
         </div>
       );
     }
@@ -365,15 +371,13 @@ function App() {
   useEffect(() => { migrateDatabase(); }, []);
 
   return (
-    <ErrorBoundary>
-      <ThemeProvider>
-        <AuthProvider>
-          <Router>
-            <AppRoutes />
-          </Router>
-        </AuthProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
