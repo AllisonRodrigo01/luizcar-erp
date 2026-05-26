@@ -245,7 +245,7 @@ const Financeiro = () => {
                 </select>
               </div>
             </div>
-            <div style={{ overflowX: 'auto' }}>
+            <div className="table-container">
               <table style={{ minWidth: '700px' }}>
                 <thead>
                   <tr>
@@ -320,7 +320,7 @@ const Financeiro = () => {
 
           <div className="glass-panel" style={{ padding: '1.5rem' }}>
             <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, marginBottom: '1.25rem' }}>Consolidado por Funcionário</h3>
-            <div style={{ overflowX: 'auto' }}>
+            <div className="table-container">
               <table style={{ minWidth: '600px' }}>
                 <thead>
                   <tr>
@@ -367,7 +367,7 @@ const Financeiro = () => {
               <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, marginBottom: '1.25rem' }}>
                 Detalhamento: <span style={{ color: 'var(--color-primary)' }}>{selectedMecanico.nome}</span>
               </h3>
-              <div style={{ overflowX: 'auto' }}>
+              <div className="table-container">
                 <table style={{ minWidth: '700px' }}>
                   <thead>
                     <tr>

@@ -20,26 +20,13 @@ const statusConfig = {
 };
 
 const Modal = ({ title, onClose, children, maxWidth = '600px' }) => (
-  <div style={{
-    position: 'fixed', inset: 0, zIndex: 1000,
-    background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
-  }} onClick={onClose}>
-    <div className="glass-panel" style={{
-      width: '100%', maxWidth,
-      boxShadow: 'var(--shadow-xl)', animation: 'fadeIn 0.2s ease',
-      display: 'flex', flexDirection: 'column'
-    }} onClick={e => e.stopPropagation()}>
-      <div style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--color-border)'
-      }}>
-        <h3 style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-text-main)' }}>{title}</h3>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)', padding: '4px' }}>
-          <X size={18} />
-        </button>
+  <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-content" style={{ maxWidth }} onClick={e => e.stopPropagation()}>
+      <div className="modal-header">
+        <h3>{title}</h3>
+        <button className="modal-close" onClick={onClose}><X size={18} /></button>
       </div>
-      <div style={{ padding: '1.5rem' }}>{children}</div>
+      <div className="modal-body">{children}</div>
     </div>
   </div>
 );
@@ -194,8 +181,8 @@ const OrdensServico = () => {
         </div>
       </div>
 
-      <div className="glass-panel" style={{ overflowX: 'auto' }}>
-        <table style={{ minWidth: '900px' }}>
+      <div className="glass-panel" style={{ overflow: 'hidden' }}>
+        <div className="table-container"><table style={{ minWidth: '900px' }}>
           <thead>
             <tr>
               <th>O.S. #</th>
@@ -259,7 +246,7 @@ const OrdensServico = () => {
               <tr><td colSpan="7" style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>Nenhuma ordem de serviço localizada.</td></tr>
             )}
           </tbody>
-        </table>
+        </table></div>
       </div>
 
       {/* Modals */}
