@@ -27,6 +27,7 @@ const Clientes = () => {
 
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -56,18 +57,19 @@ const Clientes = () => {
     return matchSearch && matchStatus;
   });
 
-  const openNew = () => { setForm(emptyForm); setEditingId(null); setShowModal(true); };
-  const openEdit = (c) => { setForm({ ...c }); setEditingId(c.id); setShowModal(true); };
+  const openNew = () => { setForm({ ...emptyForm }); setErrorMsg(''); setEditingId(null); setShowModal(true); };
+  const openEdit = (c) => { setForm({ ...c }); setErrorMsg(''); setEditingId(c.id); setShowModal(true); };
   const confirmDelete = (c) => { setDeleteTarget(c); setShowDeleteModal(true); };
 
   const handleSave = async () => {
     if (!form.nome || !form.telefone) return;
+    setErrorMsg('');
     const data = {
-      nome: form.nome,
-      telefone: form.telefone,
-      email: form.email || null,
-      cpf_cnpj: form.cpf || null,
-      endereco: form.endereco || null,
+      nome: form.nome.trim(),
+      telefone: form.telefone.trim(),
+      email: form.email?.trim() || null,
+      cpf_cnpj: form.cpf?.trim() || null,
+      endereco: form.endereco?.trim() || null,
       ativo: Number(form.ativo)
     };
     try {
@@ -83,6 +85,7 @@ const Clientes = () => {
       await fetchData();
     } catch (error) {
       console.error('Erro ao salvar cliente:', error);
+      setErrorMsg(error.message || 'Erro ao salvar cliente. Verifique os dados e tente novamente.');
     }
   };
 
@@ -232,7 +235,16 @@ const Clientes = () => {
 
       {/* Modal Cadastro/Edição */}
       {showModal && (
-        <Modal title={editingId ? 'Editar Cliente' : 'Novo Cliente'} onClose={() => setShowModal(false)}>
+        <Modal title={editingId ? 'Editar Cliente' : 'Novo Cliente'} onClose={() => { setShowModal(false); setErrorMsg(''); }}>
+          {errorMsg && (
+            <div style={{
+              background: 'rgba(220,38,38,0.08)', color: 'var(--color-danger)',
+              padding: '0.75rem 1rem', borderRadius: '8px', fontSize: '0.8125rem',
+              marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem'
+            }}>
+              <XCircle size={15} /> {errorMsg}
+            </div>
+          )}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 1rem' }}>
             <div style={{ ...fieldStyle, gridColumn: '1 / -1' }}>
               <label className="input-label">Nome Completo *</label>
@@ -269,7 +281,7 @@ const Clientes = () => {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
-            <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancelar</button>
+            <button className="btn btn-secondary" onClick={() => { setShowModal(false); setErrorMsg(''); }}>Cancelar</button>
             <button className="btn btn-primary" onClick={handleSave}>
               {editingId ? 'Salvar Alterações' : 'Cadastrar Cliente'}
             </button>
