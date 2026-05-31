@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Building2, Phone, Mail, MapPin, Sliders, MailCheck, Database, Save, CheckCircle } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Building2, Phone, Mail, MapPin, Sliders, MailCheck, Database, Upload, Save, CheckCircle } from 'lucide-react';
 import { api } from '../lib/api';
 
 const CONFIG_KEYS = [
@@ -10,12 +10,12 @@ const CONFIG_KEYS = [
 ];
 
 const defaultValues = {
-  razao_social: 'Rede Lopes Serviços Automotivos LTDA',
-  nome_fantasia: 'Rede Lopes',
+  razao_social: 'Luiz Car Oficina Automotiva',
+  nome_fantasia: 'LuizCar',
   cnpj: '12.345.678/0001-99',
   inscricao_estadual: '110.220.330.440',
   telefone: '(11) 98765-4321',
-  email: 'contato@redelopes.com.br',
+  email: 'contato@luizcar.com.br',
   cep: '01001-000',
   logradouro: 'Avenida Paulista',
   numero: '1000',
@@ -24,10 +24,10 @@ const defaultValues = {
   cidade: 'São Paulo',
   uf: 'SP',
   validade_orcamento: 15,
-  observacao_pdf: 'A solução certa para empresas modernas.',
-  smtp_host: 'smtp.redelopes.com.br',
+  observacao_pdf: 'Excelência em serviços automotivos.',
+  smtp_host: 'smtp.luizcar.com.br',
   smtp_port: 587,
-  smtp_user: 'contato@redelopes.com.br',
+  smtp_user: 'contato@luizcar.com.br',
   smtp_pass: '',
   smtp_crypt: 'STARTTLS'
 };
@@ -36,6 +36,7 @@ const Configuracoes = () => {
   const [empresa, setEmpresa] = useState(defaultValues);
   const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(true);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const loadConfig = async () => {
@@ -98,8 +99,24 @@ const Configuracoes = () => {
     }
   };
 
-  const handleRestore = () => {
-    alert('A restauração manual deve ser feita via interface do Turso.');
+  const handleImport = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const backup = JSON.parse(text);
+      const res = await api.importBackup(backup);
+      if (res.success) {
+        alert('Backup restaurado com sucesso!');
+        window.location.reload();
+      } else {
+        alert('Erro ao restaurar backup.');
+      }
+    } catch (error) {
+      console.error('Erro ao importar backup:', error);
+      alert('Arquivo inválido. Selecione um arquivo JSON de backup válido.');
+    }
+    e.target.value = '';
   };
 
   const SectionHeader = ({ icon: Icon, title }) => (
@@ -273,6 +290,10 @@ const Configuracoes = () => {
             <button type="button" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={handleBackup}>
               <Database size={14} /> Exportar Backup (JSON)
             </button>
+            <button type="button" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => fileInputRef.current?.click()}>
+              <Upload size={14} /> Importar Backup (JSON)
+            </button>
+            <input ref={fileInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={handleImport} />
           </div>
         </div>
 

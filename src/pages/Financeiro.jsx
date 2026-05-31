@@ -2,6 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { DollarSign, TrendingUp, Award, Users, ChevronRight } from 'lucide-react';
 import { api } from '../lib/api';
 
+const KPICard = ({ title, value, icon: Icon, color, bg }) => (
+  <div className="kpi-card" style={{ background: bg || 'var(--color-bg-surface)' }}>
+    <div className="kpi-icon" style={{ background: `${color}18`, color }}>
+      <Icon size={20} strokeWidth={1.8} />
+    </div>
+    <div>
+      <div className="kpi-label">{title}</div>
+      <div className="kpi-value">{value}</div>
+    </div>
+  </div>
+);
+
 const Financeiro = () => {
   const [activeTab, setActiveTab] = useState('faturamento');
   const [filterMonth, setFilterMonth] = useState(String(new Date().getMonth() + 1).padStart(2, '0'));
@@ -190,33 +202,27 @@ const Financeiro = () => {
       {activeTab === 'faturamento' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-            <div className="kpi-card">
-              <div className="kpi-icon" style={{ background: 'rgba(5,150,105,0.08)', color: 'var(--color-success)' }}>
-                <DollarSign size={20} strokeWidth={1.8} />
-              </div>
-              <div>
-                <div className="kpi-label">Faturamento do Mês</div>
-                <div className="kpi-value">R$ {faturamentoDoMes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
-              </div>
-            </div>
-            <div className="kpi-card">
-              <div className="kpi-icon" style={{ background: 'rgba(99,102,241,0.08)', color: 'var(--color-secondary)' }}>
-                <TrendingUp size={20} strokeWidth={1.8} />
-              </div>
-              <div>
-                <div className="kpi-label">Faturamento Acumulado</div>
-                <div className="kpi-value">R$ {faturamentoAcumulado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
-              </div>
-            </div>
-            <div className="kpi-card">
-              <div className="kpi-icon" style={{ background: 'rgba(2,132,199,0.08)', color: 'var(--color-info)' }}>
-                <Award size={20} strokeWidth={1.8} />
-              </div>
-              <div>
-                <div className="kpi-label">OS Concluídas no Mês</div>
-                <div className="kpi-value">{totalOSConcluidas}</div>
-              </div>
-            </div>
+            <KPICard
+              title="Faturamento do Mês"
+              value={`R$ ${faturamentoDoMes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+              icon={DollarSign}
+              color="#16a34a"
+              bg="rgba(22,163,74,0.04)"
+            />
+            <KPICard
+              title="Faturamento Acumulado"
+              value={`R$ ${faturamentoAcumulado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+              icon={TrendingUp}
+              color="#1d4ed8"
+              bg="rgba(29,78,216,0.04)"
+            />
+            <KPICard
+              title="OS Concluídas no Mês"
+              value={totalOSConcluidas}
+              icon={Award}
+              color="#0ea5e9"
+              bg="rgba(14,165,233,0.04)"
+            />
           </div>
 
           <div className="glass-panel" style={{ padding: '1.5rem' }}>
@@ -298,24 +304,20 @@ const Financeiro = () => {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-            <div className="kpi-card">
-              <div className="kpi-icon" style={{ background: 'rgba(139,92,246,0.08)', color: 'var(--color-secondary)' }}>
-                <Award size={20} strokeWidth={1.8} />
-              </div>
-              <div>
-                <div className="kpi-label">Comissões Acumuladas</div>
-                <div className="kpi-value">R$ {totalComissoesAPagar.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
-              </div>
-            </div>
-            <div className="kpi-card">
-              <div className="kpi-icon" style={{ background: 'rgba(2,132,199,0.08)', color: 'var(--color-info)' }}>
-                <Users size={20} strokeWidth={1.8} />
-              </div>
-              <div>
-                <div className="kpi-label">OS com Técnico</div>
-                <div className="kpi-value">{totalOSAtribuidas}</div>
-              </div>
-            </div>
+            <KPICard
+              title="Comissões Acumuladas"
+              value={`R$ ${totalComissoesAPagar.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+              icon={Award}
+              color="#1d4ed8"
+              bg="rgba(29,78,216,0.04)"
+            />
+            <KPICard
+              title="OS com Técnico"
+              value={totalOSAtribuidas}
+              icon={Users}
+              color="#0ea5e9"
+              bg="rgba(14,165,233,0.04)"
+            />
           </div>
 
           <div className="glass-panel" style={{ padding: '1.5rem' }}>

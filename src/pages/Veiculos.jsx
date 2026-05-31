@@ -64,8 +64,8 @@ const Veiculos = () => {
       cliente.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  const openNew = () => { setForm(emptyForm); setEditingId(null); setShowModal(true); };
-  const openEdit = (v) => { setForm({ ...v }); setEditingId(v.id); setShowModal(true); };
+  const openNew = () => { setForm({ ...emptyForm }); setEditingId(null); setShowModal(true); };
+  const openEdit = (v) => { setForm({ ...emptyForm, ...v }); setEditingId(v.id); setShowModal(true); };
   const confirmDelete = (v) => { setDeleteTarget(v); setShowDeleteModal(true); };
 
   const handleSave = async () => {
@@ -76,6 +76,9 @@ const Veiculos = () => {
       modelo: form.modelo,
       ano: Number(form.ano) || null,
       cor: form.cor || null,
+      combustivel: form.combustivel || null,
+      quilometragem: form.quilometragem || null,
+      observacoes: form.observacoes || null,
       cliente_id: Number(form.cliente_id) || null
     };
     try {

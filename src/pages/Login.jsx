@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Car, Lock, User, Shield, BarChart3, Wrench } from 'lucide-react';
+import { Car, Lock, User, Shield, BarChart3, Wrench, Sparkles } from 'lucide-react';
 
 const FeatureItem = ({ icon: Icon, text }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', padding: '0.5rem 0' }}>
@@ -47,33 +47,31 @@ const Login = () => {
       }}>
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(135deg, #0a0f28 0%, #0a1628 40%, #111827 100%)',
-        }} />
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: 'url(/rede_lopes_logo.jpg)',
+          backgroundImage: 'url(https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1920&q=80)',
           backgroundSize: 'cover', backgroundPosition: 'center',
-          opacity: 0.15, mixBlendMode: 'overlay',
         }} />
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'radial-gradient(ellipse at 30% 50%, rgba(37,99,235,0.08) 0%, transparent 60%)',
+          background: 'rgba(255,255,255,0.35)',
         }} />
 
         <div style={{
           position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column',
           alignItems: 'center', padding: '3rem', maxWidth: 500, textAlign: 'center',
         }}>
-          <div style={{ marginBottom: '2rem' }}>
+          <div style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <img src="/logo_rede_lopes.png" alt="Rede Lopes" style={{
+              width: 220, height: 220, objectFit: 'contain',
+              marginBottom: '2.5rem', filter: 'drop-shadow(0 8px 30px rgba(0,0,0,0.5))',
+            }} />
             <h1 style={{
-              fontSize: '3rem', fontWeight: 800, color: 'white', margin: 0,
+              fontSize: '3rem', fontWeight: 800, color: 'var(--color-text-main)', margin: 0,
               lineHeight: 1.1, letterSpacing: '-0.03em',
-              textShadow: '0 2px 30px rgba(0,0,0,0.5)',
             }}>
-              Rede <span style={{ color: '#60a5fa' }}>Lopes</span>
+              Rede <span style={{ color: 'var(--color-primary)' }}>Lopes</span>
             </h1>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem', marginTop: '0.5rem', fontWeight: 400 }}>
-              A solução certa para empresas modernas.
+            <p style={{ color: 'var(--color-text-secondary)', fontSize: '1rem', marginTop: '0.5rem', fontWeight: 400 }}>
+              Soluções inteligentes para sua empresa
             </p>
           </div>
 
@@ -112,9 +110,8 @@ const Login = () => {
           background: 'linear-gradient(90deg, #3b82f6, #6366f1, #8b5cf6)',
         }} />
 
-        <img src="/logo_rede_lopes.png" alt="Rede Lopes" style={{
-          width: 68, height: 68, borderRadius: 18,
-          objectFit: 'cover', boxShadow: '0 8px 28px rgba(59,130,246,0.35)',
+        <img src="/logo_luizcar.jpg" alt="LuizCar" style={{
+          width: 80, height: 80, objectFit: 'contain',
           marginBottom: '1.25rem',
         }} />
 

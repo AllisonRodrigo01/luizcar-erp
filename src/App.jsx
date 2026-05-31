@@ -3,20 +3,22 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } f
 import {
   LayoutDashboard, Users, Car, Settings, LogOut, Wrench, Package,
   ChevronDown, ChevronRight, Bell, Moon, Sun, Menu, DollarSign,
-  ChevronLeft, ShieldCheck, Building2
+  ChevronLeft, ShieldCheck, Building2, Calendar, MessageSquare, AlertCircle, CheckCircle
 } from 'lucide-react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
-import { migrateDatabase } from './lib/api';
+import { migrateDatabase, api } from './lib/api';
 import Dashboard from './pages/Dashboard';
 import Clientes from './pages/Clientes';
 import Veiculos from './pages/Veiculos';
 import OrdensServico from './pages/OrdensServico';
 import Login from './pages/Login';
 import RecuperarSenha from './pages/RecuperarSenha';
+import ResetarSenha from './pages/ResetarSenha';
 import Usuarios from './pages/Usuarios';
 import Estoque from './pages/Estoque';
 import Financeiro from './pages/Financeiro';
+import Agenda from './pages/Agenda';
 import Configuracoes from './pages/Configuracoes';
 
 const SidebarItem = ({ icon: Icon, label, to, requireAdmin, subItems, onNavigate }) => {
@@ -106,7 +108,7 @@ const Breadcrumb = () => {
   return (
     <nav style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
       <Building2 size={13} />
-      <span style={{ fontWeight: 600, color: 'var(--color-text-main)' }}>Rede Lopes</span>
+      <span style={{ fontWeight: 600, color: 'var(--color-text-main)' }}>LuizCar</span>
       {paths.map((p, i) => (
         <React.Fragment key={i}>
           <ChevronRight size={11} />
@@ -126,10 +128,32 @@ const AppLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notificacoes, setNotificacoes] = useState([]);
+
+  const fetchNotificacoes = async () => {
+    try {
+      const res = await api.query('SELECT n.*, c.nome as cliente_nome, c.telefone as cliente_telefone FROM notificacoes n LEFT JOIN clientes c ON n.cliente_id = c.id WHERE n.lida = 0 ORDER BY n.criado_em DESC LIMIT 20');
+      setNotificacoes(res.rows || []);
+    } catch (e) { console.error(e); }
+  };
+
+  useEffect(() => { fetchNotificacoes(); }, []);
 
   useEffect(() => {
     setMobileSidebarOpen(false);
+    fetchNotificacoes();
   }, [location.pathname]);
+
+  const handleSendNotificacao = async (n) => {
+    let telefone = (n.cliente_telefone || '').replace(/\D/g, '');
+    if (telefone && !telefone.startsWith('55')) telefone = `55${telefone}`;
+    const text = encodeURIComponent(n.mensagem);
+    if (telefone) window.open(`https://wa.me/${telefone}?text=${text}`, '_blank');
+    try {
+      await api.execute({ sql: 'UPDATE notificacoes SET lida = 1 WHERE id = ?', args: [n.id] });
+      fetchNotificacoes();
+    } catch (e) { console.error(e); }
+  };
 
   const closeMobile = () => {
     if (window.innerWidth <= 768) setMobileSidebarOpen(false);
@@ -144,6 +168,7 @@ const AppLayout = () => {
       { icon: Car, label: 'Veículos', to: '/veiculos' },
     ]},
     { section: 'Operacional', items: [
+      { icon: Calendar, label: 'Agenda', to: '/agenda' },
       { icon: Wrench, label: 'Ordens de Serviço', to: '/os' },
       { icon: Package, label: 'Estoque', to: '/estoque', admin: true },
     ]},
@@ -165,25 +190,16 @@ const AppLayout = () => {
         overflow: 'hidden',
       }}>
         <div className="sidebar-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img src="/logo_rede_lopes.png" alt="Rede Lopes" style={{
-              width: 38, height: 38, borderRadius: 10,
-              objectFit: 'cover', boxShadow: '0 2px 12px rgba(37,99,235,0.3)',
-            }} />
-            <div>
-              <h2 style={{ fontSize: '0.95rem', margin: 0, color: 'white', fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-                REDE LOPES
-              </h2>
-              <p style={{ margin: 0, fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)', fontWeight: 600, letterSpacing: '0.06em' }}>
-                LUIZCAR ERP
-              </p>
-            </div>
+          <img src="/logo_luizcar.jpg" alt="LuizCar" className="sidebar-logo" />
+          <div className="sidebar-brand">
+            <h2 className="sidebar-brand-title">LUIZ CAR</h2>
+            <p className="sidebar-brand-sub">OFICINA AUTOMOTIVA</p>
           </div>
         </div>
 
         <div style={{ padding: '0.5rem 0', flex: 1, overflowY: 'auto' }}>
-          <div style={{ padding: '0 1.5rem 1rem', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.25)', lineHeight: 1.4, fontWeight: 400 }}>
-            Soluções inteligentes para empresas
+          <div style={{ padding: '0.5rem 1.5rem 1rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.5, fontWeight: 400, fontStyle: 'italic', borderBottom: '1px solid rgba(255,255,255,0.06)', margin: '0 0.75rem 0.5rem' }}>
+            "Excelência em serviços automotivos"
           </div>
 
           {menuItems.map((section, idx) => (
@@ -252,11 +268,11 @@ const AppLayout = () => {
                 transition: 'var(--transition)',
               }}>
                 <Bell size={17} />
-                <span style={{
+                {notificacoes.length > 0 && <span style={{
                   position: 'absolute', top: 2, right: 2,
                   width: 8, height: 8, background: 'var(--color-danger)',
                   borderRadius: '50%', border: '2px solid var(--color-topbar)',
-                }} />
+                }} />}
               </button>
 
               {notificationsOpen && (
@@ -264,15 +280,34 @@ const AppLayout = () => {
                   <div style={{ position: 'fixed', inset: 0, zIndex: 40 }} onClick={() => setNotificationsOpen(false)} />
                   <div className="glass-panel" style={{
                     position: 'absolute', top: 'calc(100% + 8px)', right: 0,
-                    width: 340, zIndex: 50, overflow: 'hidden', animation: 'slideDown 0.15s ease',
+                    width: 380, maxHeight: 440, overflowY: 'auto', zIndex: 50,
+                    animation: 'slideDown 0.15s ease',
                     boxShadow: 'var(--shadow-xl)', border: '1px solid var(--color-border)',
                   }}>
                     <div style={{ padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--color-border)', fontWeight: 600, fontSize: '0.8125rem' }}>
-                      Notificações
+                      Notificações {notificacoes.length > 0 && `(${notificacoes.length})`}
                     </div>
-                    <div className="empty-state" style={{ padding: '2rem' }}>
-                      <p style={{ fontSize: '0.8125rem' }}>Nenhuma notificação nova</p>
-                    </div>
+                    {notificacoes.length === 0 ? (
+                      <div className="empty-state" style={{ padding: '2rem' }}>
+                        <p style={{ fontSize: '0.8125rem' }}>Nenhuma notificação pendente</p>
+                      </div>
+                    ) : notificacoes.map(n => (
+                      <div key={n.id} onClick={() => handleSendNotificacao(n)} style={{
+                        display: 'flex', gap: '0.75rem', padding: '0.875rem 1.25rem',
+                        borderBottom: '1px solid var(--color-border)',
+                        background: n.lida ? 'transparent' : 'rgba(37,99,235,0.03)',
+                        cursor: 'pointer', transition: 'var(--transition)',
+                      }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(37,99,235,0.08)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = n.lida ? 'transparent' : 'rgba(37,99,235,0.03)'; }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.25rem' }}>
+                            <MessageSquare size={13} color="var(--color-success)" />
+                            <span style={{ fontWeight: 600, fontSize: '0.8125rem', color: 'var(--color-text-main)' }}>{n.mensagem_admin || n.mensagem}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </>
               )}
@@ -301,6 +336,7 @@ const AppLayout = () => {
             <Route path="/" element={<PageErrorBoundary><Dashboard /></PageErrorBoundary>} />
             <Route path="/clientes" element={<PageErrorBoundary><Clientes /></PageErrorBoundary>} />
             <Route path="/veiculos" element={<PageErrorBoundary><Veiculos /></PageErrorBoundary>} />
+            <Route path="/agenda" element={<PageErrorBoundary><Agenda /></PageErrorBoundary>} />
             <Route path="/os" element={<PageErrorBoundary><OrdensServico /></PageErrorBoundary>} />
             <Route path="/estoque" element={<PageErrorBoundary><PrivateRoute requireAdmin={true}><Estoque /></PrivateRoute></PageErrorBoundary>} />
             <Route path="/financeiro" element={<PageErrorBoundary><PrivateRoute requireAdmin={true}><Financeiro /></PrivateRoute></PageErrorBoundary>} />
@@ -319,6 +355,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/login" element={!user ? <Login /> : <Navigate to="/" replace />} />
       <Route path="/recuperar-senha" element={!user ? <RecuperarSenha /> : <Navigate to="/" replace />} />
+      <Route path="/recuperar-senha/:token" element={!user ? <ResetarSenha /> : <Navigate to="/" replace />} />
       <Route path="/*" element={<PrivateRoute><AppLayout /></PrivateRoute>} />
     </Routes>
   );
@@ -327,13 +364,15 @@ const AppRoutes = () => {
 class PageErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null, retries: 0 };
+    this.state = { hasError: false, error: null, info: null, retries: 0 };
   }
   static getDerivedStateFromError(error) {
     return { hasError: true, error };
   }
   componentDidCatch(error, info) {
     console.error('PageErrorBoundary caught:', error, info);
+    console.error('Component stack:', info?.componentStack || 'N/A');
+    this.setState({ info: info?.componentStack || 'N/A' });
     if (error.message?.includes('removeChild') && this.state.retries < 2) {
       setTimeout(() => this.setState(s => ({ hasError: false, error: null, retries: s.retries + 1 })), 200);
     }
@@ -345,7 +384,7 @@ class PageErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
           minHeight: '60vh', color: 'var(--color-text-main)', padding: '2rem', textAlign: 'center'
         }}>
           <ShieldCheck size={40} color="var(--color-danger)" />
@@ -356,6 +395,12 @@ class PageErrorBoundary extends React.Component {
               : `Ocorreu um erro inesperado: ${this.state.error?.message || 'Erro desconhecido'}`
             }
           </p>
+          <details style={{ marginTop: '1rem', textAlign: 'left', fontSize: '0.7rem', color: 'var(--color-text-muted)', maxWidth: '100%', overflow: 'auto' }}>
+            <summary style={{ cursor: 'pointer', fontWeight: 600 }}>Stack trace</summary>
+            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: 'rgba(0,0,0,0.05)', padding: '0.75rem', borderRadius: '6px', marginTop: '0.5rem', maxHeight: '300px', overflow: 'auto' }}>
+              {this.state.info || 'N/A'}
+            </pre>
+          </details>
           <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
             <button onClick={this.handleRetry} className="btn btn-primary">Tentar novamente</button>
             <button onClick={() => window.location.reload()} className="btn btn-secondary">Recarregar página</button>

@@ -3,12 +3,12 @@ import { UserPlus, Edit2, Trash2, Users, ShieldCheck, Wrench, Headphones, X } fr
 import { api, API_URL } from '../lib/api';
 
 const roleConfig = {
-  'Admin': { icon: ShieldCheck, color: 'var(--color-secondary)', bg: 'rgba(99,102,241,0.08)' },
-  'Mecanico': { icon: Wrench, color: 'var(--color-info)', bg: 'rgba(2,132,199,0.08)' },
+  'Admin': { icon: ShieldCheck, color: 'var(--color-secondary)', bg: 'rgba(59,130,246,0.08)' },
+  'Mecanico': { icon: Wrench, color: 'var(--color-info)', bg: 'rgba(14,165,233,0.08)' },
   'Atendimento': { icon: Headphones, color: 'var(--color-warning)', bg: 'rgba(217,119,6,0.08)' },
 };
 
-const emptyForm = { nome: '', login: '', senha: '', nivel_acesso: 'Atendimento' };
+const emptyForm = { nome: '', login: '', email: '', senha: '', nivel_acesso: 'Atendimento' };
 
 const Modal = ({ title, onClose, children }) => (
   <div className="modal-overlay" onClick={onClose}>
@@ -36,7 +36,7 @@ const Usuarios = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.query('SELECT id, nome, login, nivel_acesso FROM usuarios ORDER BY nome');
+      const res = await api.query('SELECT id, nome, login, email, nivel_acesso FROM usuarios ORDER BY nome');
       setUsuarios(res.rows || []);
     } catch (error) {
       console.error('Erro ao carregar usuários:', error);
@@ -49,7 +49,7 @@ const Usuarios = () => {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   const openNew = () => { setForm(emptyForm); setEditingId(null); setShowModal(true); setError(''); };
-  const openEdit = (u) => { setForm({ nome: u.nome, login: u.login, senha: '', nivel_acesso: u.nivel_acesso }); setEditingId(u.id); setShowModal(true); setError(''); };
+  const openEdit = (u) => { setForm({ nome: u.nome, login: u.login, email: u.email || '', senha: '', nivel_acesso: u.nivel_acesso }); setEditingId(u.id); setShowModal(true); setError(''); };
   const confirmDelete = (u) => { setDeleteTarget(u); setShowDeleteModal(true); };
 
   const handleSave = async () => {
@@ -60,7 +60,7 @@ const Usuarios = () => {
     try {
       let res;
       if (editingId) {
-        const payload = { action: 'atualizar_usuario', id: editingId, nome: form.nome, login: form.login, nivel_acesso: form.nivel_acesso };
+        const payload = { action: 'atualizar_usuario', id: editingId, nome: form.nome, login: form.login, email: form.email, nivel_acesso: form.nivel_acesso };
         if (form.senha) payload.senha = form.senha;
         res = await fetch(API_URL, {
           method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
@@ -68,7 +68,7 @@ const Usuarios = () => {
       } else {
         res = await fetch(API_URL, {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: 'criar_usuario', nome: form.nome, login: form.login, senha: form.senha, nivel_acesso: form.nivel_acesso }),
+          body: JSON.stringify({ action: 'criar_usuario', nome: form.nome, login: form.login, email: form.email, senha: form.senha, nivel_acesso: form.nivel_acesso }),
         });
       }
       const result = await res.json();
@@ -128,13 +128,14 @@ const Usuarios = () => {
             <tr>
               <th>Funcionário</th>
               <th>Login</th>
+              <th>E-mail</th>
               <th>Nível de Acesso</th>
               <th style={{ textAlign: 'right' }}>Ações</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="4" style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>Carregando...</td></tr>
+              <tr><td colSpan="5" style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>Carregando...</td></tr>
             ) : usuarios.map((user) => {
               const cfg = roleConfig[user.nivel_acesso] || roleConfig['Atendimento'];
               const Icon = cfg.icon;
@@ -154,6 +155,7 @@ const Usuarios = () => {
                     </div>
                   </td>
                   <td style={{ fontFamily: 'monospace', fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>{user.login}</td>
+                  <td style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>{user.email || '-'}</td>
                   <td>
                     <span className="badge" style={{ background: cfg.bg, color: cfg.color }}>
                       <Icon size={10} strokeWidth={2} /> {user.nivel_acesso}
@@ -187,8 +189,13 @@ const Usuarios = () => {
             </div>
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label className="input-label">Login *</label>
-              <input className="input-field" style={{ width: '100%' }} placeholder="usuario.login"
+              <input className="input-field" style={{ width: '100%' }} placeholder="Nome de usuário para login"
                 value={form.login} onChange={e => setForm(f => ({ ...f, login: e.target.value }))} data-gramm="false" />
+            </div>
+            <div className="input-group" style={{ marginBottom: 0 }}>
+              <label className="input-label">E-mail</label>
+              <input className="input-field" style={{ width: '100%' }} type="email" placeholder="email@exemplo.com (para recuperar senha)"
+                value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} data-gramm="false" />
             </div>
             <div className="input-group" style={{ marginBottom: 0 }}>
               <label className="input-label">{editingId ? 'Nova Senha (deixe vazio para manter)' : 'Senha *'}</label>

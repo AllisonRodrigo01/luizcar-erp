@@ -5,14 +5,16 @@ import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 import { Link } from 'react-router-dom';
 
-const KPICard = ({ title, value, subtitle, icon: Icon, color, trend, trendUp }) => (
-  <div className="kpi-card">
-    <div className="kpi-icon" style={{ background: `${color}12`, color }}>
+const KPICard = ({ title, value, subtitle, icon: Icon, color, bg, trend, trendUp }) => {
+  const isSolid = bg?.startsWith('#');
+  return (
+  <div className="kpi-card" style={{ background: bg || 'var(--color-bg-surface)' }}>
+    <div className="kpi-icon" style={{ background: `${color}30`, color: '#fff' }}>
       <Icon size={20} strokeWidth={1.8} />
     </div>
     <div style={{ flex: 1, minWidth: 0 }}>
-      <div className="kpi-label">{title}</div>
-      <div className="kpi-value">{value}</div>
+      <div className="kpi-label" style={{ color: isSolid ? 'rgba(255,255,255,0.7)' : undefined }}>{title}</div>
+      <div className="kpi-value" style={{ color: isSolid ? '#fff' : undefined }}>{value}</div>
       {subtitle && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.25rem' }}>
           {trend !== undefined && (
@@ -22,18 +24,19 @@ const KPICard = ({ title, value, subtitle, icon: Icon, color, trend, trendUp }) 
               gap: '0.125rem',
               fontSize: '0.6875rem',
               fontWeight: 600,
-              color: trendUp ? 'var(--color-success)' : 'var(--color-danger)',
+              color: isSolid ? 'rgba(255,255,255,0.9)' : (trendUp ? 'var(--color-success)' : 'var(--color-danger)'),
             }}>
               {trendUp ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
               {trend}
             </span>
           )}
-          <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>{subtitle}</span>
+          <span style={{ fontSize: '0.6875rem', color: isSolid ? 'rgba(255,255,255,0.65)' : 'var(--color-text-muted)' }}>{subtitle}</span>
         </div>
       )}
     </div>
   </div>
-);
+  );
+};
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -86,11 +89,11 @@ const Dashboard = () => {
         }));
 
         setStats({
-          clientes: Number(clientes.rows[0][0]) || 0,
-          veiculos: Number(veiculos.rows[0][0]) || 0,
-          osPendentes: Number(osPendentes.rows[0][0]) || 0,
-          faturamentoMes: Number(faturamentoMes.rows[0][0]) || 0,
-          osConcluidasMes: Number(osConcluidasMes.rows[0][0]) || 0,
+          clientes: Number(clientes.rows[0]?.total ?? clientes.rows[0]?.[0] ?? 0) || 0,
+          veiculos: Number(veiculos.rows[0]?.total ?? veiculos.rows[0]?.[0] ?? 0) || 0,
+          osPendentes: Number(osPendentes.rows[0]?.total ?? osPendentes.rows[0]?.[0] ?? 0) || 0,
+          faturamentoMes: Number(faturamentoMes.rows[0]?.total ?? faturamentoMes.rows[0]?.[0] ?? 0) || 0,
+          osConcluidasMes: Number(osConcluidasMes.rows[0]?.total ?? osConcluidasMes.rows[0]?.[0] ?? 0) || 0,
         });
         setChartData(chart);
         setAreaData(area);
@@ -150,7 +153,8 @@ const Dashboard = () => {
           value={loading ? '...' : stats.clientes.toLocaleString('pt-BR')}
           subtitle="Total no sistema"
           icon={Users}
-          color="var(--color-secondary)"
+          color="#16a34a"
+          bg="#16a34a"
           trend="12%"
           trendUp={true}
         />
@@ -159,7 +163,8 @@ const Dashboard = () => {
           value={loading ? '...' : stats.veiculos.toLocaleString('pt-BR')}
           subtitle="Total no sistema"
           icon={Car}
-          color="var(--color-info)"
+          color="#0ea5e9"
+          bg="#0ea5e9"
           trend="8%"
           trendUp={true}
         />
@@ -168,7 +173,8 @@ const Dashboard = () => {
           value={loading ? '...' : stats.osPendentes.toLocaleString('pt-BR')}
           subtitle="Aguardando conclusão"
           icon={Wrench}
-          color="var(--color-warning)"
+          color="#d97706"
+          bg="#d97706"
         />
         {user?.role === 'admin' && (
           <>
@@ -177,7 +183,8 @@ const Dashboard = () => {
               value={loading ? '...' : fmt(stats.faturamentoMes)}
               subtitle="OS concluídas no período"
               icon={DollarSign}
-              color="var(--color-success)"
+              color="#059669"
+              bg="#059669"
               trend="5%"
               trendUp={true}
             />
@@ -186,7 +193,8 @@ const Dashboard = () => {
               value={loading ? '...' : stats.osConcluidasMes.toLocaleString('pt-BR')}
               subtitle="Neste mês"
               icon={TrendingUp}
-              color="var(--color-primary)"
+              color="#1d4ed8"
+              bg="#1d4ed8"
             />
           </>
         )}
@@ -279,10 +287,10 @@ const Dashboard = () => {
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           {[
-            { label: 'Nova OS', to: '/os', icon: Wrench },
-            { label: 'Novo Cliente', to: '/clientes', icon: Users },
-            { label: 'Novo Veículo', to: '/veiculos', icon: Car },
-            { label: 'Financeiro', to: '/financeiro', icon: DollarSign, admin: true },
+            { label: 'Nova OS', to: '/os', icon: Wrench, color: '#d97706' },
+            { label: 'Novo Cliente', to: '/clientes', icon: Users, color: '#16a34a' },
+            { label: 'Novo Veículo', to: '/veiculos', icon: Car, color: '#0ea5e9' },
+            { label: 'Financeiro', to: '/financeiro', icon: DollarSign, color: '#1d4ed8', admin: true },
           ].filter(item => !item.admin || user?.role === 'admin').map((item) => (
             <Link
               key={item.label}
@@ -292,22 +300,24 @@ const Dashboard = () => {
                 alignItems: 'center',
                 gap: '0.5rem',
                 padding: '0.5rem 1rem',
-                background: 'var(--color-bg-base)',
-                border: '1px solid var(--color-border)',
+                background: `${item.color}12`,
+                border: `1px solid ${item.color}30`,
                 borderRadius: 'var(--radius-md)',
-                color: 'var(--color-text-secondary)',
+                color: item.color,
                 textDecoration: 'none',
                 fontSize: '0.8125rem',
-                fontWeight: 500,
+                fontWeight: 600,
                 transition: 'all 0.15s',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.borderColor = 'var(--color-primary)';
-                e.currentTarget.style.color = 'var(--color-primary)';
+                e.currentTarget.style.background = item.color;
+                e.currentTarget.style.color = '#fff';
+                e.currentTarget.style.borderColor = item.color;
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.borderColor = 'var(--color-border)';
-                e.currentTarget.style.color = 'var(--color-text-secondary)';
+                e.currentTarget.style.background = `${item.color}12`;
+                e.currentTarget.style.color = item.color;
+                e.currentTarget.style.borderColor = `${item.color}30`;
               }}
             >
               <item.icon size={14} strokeWidth={2} />

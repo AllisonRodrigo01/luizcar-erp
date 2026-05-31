@@ -12,9 +12,21 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const storedUser = localStorage.getItem('luizcar_user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      const parsed = JSON.parse(storedUser);
+      api.verifyUser(parsed.id).then(exists => {
+        if (exists) {
+          setUser(parsed);
+        } else {
+          localStorage.removeItem('luizcar_user');
+        }
+        setLoading(false);
+      }).catch(() => {
+        setUser(parsed);
+        setLoading(false);
+      });
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   const login = async (username, password) => {

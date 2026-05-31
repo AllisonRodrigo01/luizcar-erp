@@ -43,6 +43,20 @@ export const api = {
     return { rows: data.rows || [], columns: data.columns || [] };
   },
 
+  // Recuperacao de senha
+  sendRecuperarSenha: async (login) => {
+    return apiCall({ action: "sendRecuperarSenha", login });
+  },
+  resetarSenha: async (token, novaSenha) => {
+    return apiCall({ action: "resetarSenha", token, novaSenha });
+  },
+
+  // Verifica se usuario ainda existe no banco
+  verifyUser: async (userId) => {
+    const data = await apiCall({ action: "verifyUser", userId });
+    return data.exists;
+  },
+
   // Login real
   login: async (username, password) => {
     const data = await apiCall({ action: "login", username, password });
@@ -60,6 +74,10 @@ export const api = {
 
   delete: async (table, where, whereArgs = []) => {
     return apiCall({ action: "delete", table, where, whereArgs });
+  },
+
+  importBackup: async (backup) => {
+    return apiCall({ action: "import_backup", backup });
   },
 };
 
