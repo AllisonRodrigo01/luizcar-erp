@@ -235,7 +235,7 @@ const Veiculos = () => {
               </select>
             </div>
             <div style={{ marginBottom: '0.75rem' }}>
-              <label className="input-label">Quilometragem</label>
+              <label className="input-label">KM</label>
               <input className="input-field" style={{ width: '100%' }} placeholder="45.000"
                 value={form.quilometragem} onChange={e => setForm(p => ({ ...p, quilometragem: e.target.value }))} data-gramm="false" />
             </div>

@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } f
 import {
   LayoutDashboard, Users, Car, Settings, LogOut, Wrench, Package,
   ChevronDown, ChevronRight, Bell, Moon, Sun, Menu, DollarSign,
-  ChevronLeft, ShieldCheck, Building2, Calendar, MessageSquare, AlertCircle, CheckCircle
+  ChevronLeft, ShieldCheck, Building2, Calendar, MessageSquare, X
 } from 'lucide-react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
@@ -144,15 +144,22 @@ const AppLayout = () => {
     fetchNotificacoes();
   }, [location.pathname]);
 
+  const dismissNotificacao = async (id) => {
+    setNotificacoes(prev => prev.filter(n => n.id !== id));
+    try {
+      await api.execute({ sql: 'UPDATE notificacoes SET lida = 1 WHERE id = ?', args: [id] });
+    } catch (e) {
+      console.error(e);
+      fetchNotificacoes();
+    }
+  };
+
   const handleSendNotificacao = async (n) => {
     let telefone = (n.cliente_telefone || '').replace(/\D/g, '');
     if (telefone && !telefone.startsWith('55')) telefone = `55${telefone}`;
     const text = encodeURIComponent(n.mensagem);
     if (telefone) window.open(`https://wa.me/${telefone}?text=${text}`, '_blank');
-    try {
-      await api.execute({ sql: 'UPDATE notificacoes SET lida = 1 WHERE id = ?', args: [n.id] });
-      fetchNotificacoes();
-    } catch (e) { console.error(e); }
+    dismissNotificacao(n.id);
   };
 
   const closeMobile = () => {
@@ -306,6 +313,23 @@ const AppLayout = () => {
                             <span style={{ fontWeight: 600, fontSize: '0.8125rem', color: 'var(--color-text-main)' }}>{n.mensagem_admin || n.mensagem}</span>
                           </div>
                         </div>
+                        <button
+                          type="button"
+                          title="Remover notificação"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            dismissNotificacao(n.id);
+                          }}
+                          style={{
+                            background: 'none', border: 'none', cursor: 'pointer',
+                            color: 'var(--color-text-muted)', padding: '0.2rem',
+                            borderRadius: '6px', display: 'flex', alignSelf: 'flex-start'
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'var(--color-danger-light)'; e.currentTarget.style.color = 'var(--color-danger)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'var(--color-text-muted)'; }}
+                        >
+                          <X size={14} />
+                        </button>
                       </div>
                     ))}
                   </div>

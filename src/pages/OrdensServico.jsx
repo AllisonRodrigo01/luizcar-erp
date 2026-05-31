@@ -355,18 +355,6 @@ const OrdensServico = () => {
       }
       .costs-table .total td:first-child { color: #fff; }
 
-      .footer {
-        margin-top: 32px;
-        padding: 14px 0 0;
-        border-top: 1px solid #ddd;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .footer-info { font-size: 9px; color: #777; line-height: 1.6; }
-      .footer-info strong { color: #444; }
-      .footer-note { font-size: 9px; color: #aaa; text-align: right; max-width: 240px; }
-
       .obs-text { font-size: 10px; color: #555; font-style: italic; }
 
       @media print {
@@ -433,14 +421,6 @@ const OrdensServico = () => {
   <div class="section">
     <div class="section-title">Observações</div>
     <div class="section-body obs-text">${(observacaoText || '').replace(/\n/g, '<br>') || 'Nenhuma observação registrada.'}</div>
-  </div>
-
-  <div class="footer">
-    <div class="footer-info">
-      <strong>${company.nome}</strong><br>
-      ${company.cnpj ? company.cnpj + ' &nbsp;|&nbsp; ' : ''}${company.telefone || ''}${company.email ? ' &nbsp;|&nbsp; ' + company.email : ''}
-    </div>
-    <div class="footer-note">${company.observacao_pdf || 'Documento gerado em ' + new Date().toLocaleString('pt-BR')}</div>
   </div>
 
 </body></html>`);
