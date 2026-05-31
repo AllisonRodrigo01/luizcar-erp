@@ -8,9 +8,9 @@ import { Link } from 'react-router-dom';
 const KPICard = ({ title, value, subtitle, icon: Icon, color, bg, trend, trendUp }) => {
   const isSolid = bg?.startsWith('#');
   return (
-  <div className="kpi-card" style={{ background: bg || 'var(--color-bg-surface)' }}>
-    <div className="kpi-icon" style={{ background: `${color}30`, color: '#fff' }}>
-      <Icon size={20} strokeWidth={1.8} />
+  <div className="kpi-card" style={{ background: bg || undefined, borderColor: isSolid ? 'rgba(255,255,255,0.18)' : undefined }}>
+    <div className="kpi-icon" style={{ background: isSolid ? 'rgba(255,255,255,0.18)' : `${color}20`, color: isSolid ? '#fff' : color }}>
+      <Icon size={20} strokeWidth={2} />
     </div>
     <div style={{ flex: 1, minWidth: 0 }}>
       <div className="kpi-label" style={{ color: isSolid ? 'rgba(255,255,255,0.7)' : undefined }}>{title}</div>
@@ -124,18 +124,15 @@ const Dashboard = () => {
 
       {/* Alert */}
       {stats.osPendentes > 0 && (
-        <div style={{
-          background: 'rgba(217, 119, 6, 0.06)',
-          border: '1px solid rgba(217, 119, 6, 0.2)',
-          color: 'var(--color-warning)',
-          padding: '0.75rem 1rem',
-          borderRadius: 'var(--radius-md)',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          fontSize: '0.8125rem',
-        }}>
+        <div className="kpi-card" style={{
+        background: 'color-mix(in srgb, var(--color-warning) 8%, var(--color-bg-surface))',
+        borderColor: 'color-mix(in srgb, var(--color-warning) 24%, var(--color-border))',
+        color: 'var(--color-warning)',
+        padding: '0.75rem 1rem',
+        marginBottom: '1.5rem',
+        gap: '0.5rem',
+        fontSize: '0.8125rem',
+      }}>
           <AlertTriangle size={15} />
           <span><strong>Atenção:</strong> {stats.osPendentes} ordem{stats.osPendentes !== 1 ? 's' : ''} de serviço aguardando conclusão. <Link to="/os" style={{ color: 'var(--color-warning)', fontWeight: 600, textDecoration: 'underline' }}>Visualizar</Link></span>
         </div>

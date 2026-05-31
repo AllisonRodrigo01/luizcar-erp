@@ -215,12 +215,17 @@ const OrdensServico = () => {
     const css = `
       @page { margin: 18mm 15mm; }
       * { margin: 0; padding: 0; box-sizing: border-box; }
+      html {
+        -webkit-font-smoothing: antialiased;
+        text-rendering: geometricPrecision;
+      }
       body {
-        font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+        font-family: Arial, 'Segoe UI', sans-serif;
         font-size: 11px;
-        color: #222;
+        color: #111;
         background: #fff;
         line-height: 1.5;
+        font-weight: 500;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
@@ -231,26 +236,33 @@ const OrdensServico = () => {
         align-items: center;
         margin-bottom: 20px;
         padding-bottom: 16px;
-        border-bottom: 4px solid #e65100;
+        border-bottom: 4px solid #000;
       }
       .top-bar .brand {
         display: flex;
         align-items: center;
         gap: 14px;
       }
-      .top-bar .brand img { width: 72px; height: 72px; object-fit: contain; border-radius: 6px; }
+      .top-bar .brand img {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+        image-rendering: auto;
+        border-radius: 0;
+      }
       .top-bar .brand-info h1 {
         font-size: 20px;
-        font-weight: 800;
-        color: #1a1a1a;
-        letter-spacing: 0.01em;
+        font-weight: 900;
+        color: #000;
+        letter-spacing: 0;
         line-height: 1.2;
       }
       .top-bar .brand-info p {
         font-size: 9.5px;
-        color: #555;
+        color: #333;
         line-height: 1.5;
         margin-top: 3px;
+        font-weight: 600;
       }
       .top-bar .doc-info {
         text-align: right;
@@ -259,13 +271,13 @@ const OrdensServico = () => {
         font-size: 9px;
         text-transform: uppercase;
         letter-spacing: 0.12em;
-        color: #888;
+        color: #555;
         font-weight: 600;
       }
       .top-bar .doc-info .doc-number {
         font-size: 30px;
         font-weight: 900;
-        color: #e65100;
+        color: #000;
         letter-spacing: 0.02em;
         line-height: 1.1;
       }
@@ -275,10 +287,10 @@ const OrdensServico = () => {
         padding: 3px 14px;
         font-size: 10px;
         font-weight: 700;
-        border: 2px solid #e65100;
+        border: 2px solid #000;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: #e65100;
+        color: #000;
       }
 
       .info-grid {
@@ -288,26 +300,29 @@ const OrdensServico = () => {
         margin-bottom: 24px;
       }
       .info-card {
-        background: #f8f9fa;
-        border-radius: 6px;
+        background: #f7f7f7;
+        border-radius: 4px;
         padding: 12px 14px;
-        border-left: 3px solid #e65100;
+        border-left: 3px solid #000;
+        border-top: 1px solid #d0d0d0;
+        border-right: 1px solid #d0d0d0;
+        border-bottom: 1px solid #d0d0d0;
       }
       .info-card .label {
         font-size: 8px;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: #888;
+        color: #555;
         font-weight: 600;
         margin-bottom: 4px;
       }
       .info-card .value {
         font-size: 12px;
-        color: #1a1a1a;
-        font-weight: 600;
+        color: #000;
+        font-weight: 700;
         line-height: 1.6;
       }
-      .info-card .value span { font-weight: 400; color: #555; }
+      .info-card .value span { font-weight: 600; color: #333; }
 
       .section {
         margin-bottom: 20px;
@@ -317,15 +332,16 @@ const OrdensServico = () => {
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        color: #e65100;
-        border-bottom: 2px solid #eee;
+        color: #000;
+        border-bottom: 1.5px solid #000;
         padding-bottom: 5px;
         margin-bottom: 8px;
       }
       .section-body {
         font-size: 11px;
         line-height: 1.7;
-        color: #333;
+        color: #111;
+        font-weight: 500;
         padding: 0 2px;
       }
 
@@ -336,26 +352,27 @@ const OrdensServico = () => {
       }
       .costs-table tr:not(:last-child) td {
         padding: 7px 10px;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1.5px solid #b8b8b8;
       }
-      .costs-table td:first-child { color: #444; }
+      .costs-table td:first-child { color: #111; font-weight: 600; }
       .costs-table td:last-child {
         text-align: right;
-        font-weight: 700;
-        color: #1a1a1a;
+        font-weight: 800;
+        color: #000;
         width: 140px;
       }
       .costs-table .total td {
         padding: 10px 10px;
         font-size: 16px;
-        font-weight: 800;
+        font-weight: 900;
         color: #fff;
         background: #e65100;
         border: none;
+        letter-spacing: 0;
       }
       .costs-table .total td:first-child { color: #fff; }
 
-      .obs-text { font-size: 10px; color: #555; font-style: italic; }
+      .obs-text { font-size: 10px; color: #333; font-style: italic; font-weight: 500; }
 
       @media print {
         body { padding: 0; }
@@ -506,7 +523,7 @@ const OrdensServico = () => {
                       {cfg.label}
                     </span>
                   </td>
-                  <td style={{ fontWeight: 700, textAlign: 'right', fontFamily: 'monospace', fontSize: '0.8125rem', color: 'var(--color-text-main)' }}>
+                  <td className="money" style={{ textAlign: 'right', fontSize: '0.8125rem' }}>
                     R$ {totalVal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </td>
                   <td style={{ textAlign: 'right' }}>
@@ -613,50 +630,50 @@ const OrdensServico = () => {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2rem' }}>
-              <div style={{ background: 'rgba(29,78,216,0.04)', borderLeft: '3px solid #1d4ed8', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
-                <div style={{ fontSize: '0.6875rem', textTransform: 'uppercase', color: '#1d4ed8', fontWeight: 700, letterSpacing: '0.05em' }}>Cliente</div>
-                <div style={{ fontSize: '0.875rem', fontWeight: 700, marginTop: '2px', color: 'var(--color-text-main)' }}>{viewTarget.cliente_nome}</div>
+              <div className="info-card" style={{ '--info-color': '#1d4ed8' }}>
+                <div className="info-card-title">Cliente</div>
+                <div style={{ fontSize: '0.875rem', fontWeight: 800, marginTop: '2px', color: 'var(--color-text-main)' }}>{viewTarget.cliente_nome}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>Data de Abertura: {new Date(viewTarget.data_entrada).toLocaleDateString('pt-BR')}</div>
               </div>
-              <div style={{ background: 'rgba(13,148,136,0.04)', borderLeft: '3px solid #0d9488', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
-                <div style={{ fontSize: '0.6875rem', textTransform: 'uppercase', color: '#0d9488', fontWeight: 700, letterSpacing: '0.05em' }}>Veículo</div>
-                <div style={{ fontSize: '0.875rem', fontWeight: 700, marginTop: '2px', color: 'var(--color-text-main)' }}>{vehicleLabel(viewTarget)}</div>
+              <div className="info-card" style={{ '--info-color': '#0d9488' }}>
+                <div className="info-card-title">Veículo</div>
+                <div style={{ fontSize: '0.875rem', fontWeight: 800, marginTop: '2px', color: 'var(--color-text-main)' }}>{vehicleLabel(viewTarget)}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>Técnico: {viewTarget.mecanico_nome}</div>
               </div>
             </div>
 
-            <div style={{ background: 'rgba(217,119,6,0.04)', borderLeft: '3px solid #d97706', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
-              <h4 style={{ fontSize: '0.6875rem', textTransform: 'uppercase', color: '#d97706', fontWeight: 700, margin: '0 0 0.5rem 0', letterSpacing: '0.05em' }}>Diagnóstico / Descrição</h4>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: '1.5', margin: 0 }}>{viewTarget.descricao_problema || 'Nenhum diagnóstico detalhado registrado.'}</p>
+            <div className="info-card" style={{ '--info-color': '#d97706' }}>
+              <h4 className="info-card-title">Diagnóstico / Descrição</h4>
+              <p className="info-card-text">{viewTarget.descricao_problema || 'Nenhum diagnóstico detalhado registrado.'}</p>
             </div>
 
-            <div style={{ background: 'rgba(22,163,74,0.04)', borderLeft: '3px solid #16a34a', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
-              <h4 style={{ fontSize: '0.6875rem', textTransform: 'uppercase', color: '#16a34a', fontWeight: 700, margin: '0 0 0.5rem 0', letterSpacing: '0.05em' }}>Serviços Executados</h4>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', lineHeight: '1.5', margin: 0 }}>{viewTarget.servicos_executados || 'Sem observações adicionais.'}</p>
+            <div className="info-card" style={{ '--info-color': '#16a34a' }}>
+              <h4 className="info-card-title">Serviços Executados</h4>
+              <p className="info-card-text">{viewTarget.servicos_executados || 'Sem observações adicionais.'}</p>
             </div>
 
-            <div style={{ background: 'rgba(29,78,216,0.04)', borderLeft: '3px solid #1d4ed8', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
-              <h4 style={{ fontSize: '0.6875rem', textTransform: 'uppercase', color: '#1d4ed8', fontWeight: 700, margin: '0 0 0.5rem 0', letterSpacing: '0.05em' }}>Resumo de Custos</h4>
+            <div className="info-card" style={{ '--info-color': '#1d4ed8' }}>
+              <h4 className="info-card-title">Resumo de Custos</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.25rem 0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem' }}>
                   <span style={{ color: 'var(--color-text-muted)' }}>Mão de Obra / Serviços</span>
-                  <span style={{ fontWeight: 600, fontFamily: 'monospace' }}>R$ {Number(viewTarget.mao_de_obra || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                  <span className="money">R$ {Number(viewTarget.mao_de_obra || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem' }}>
                   <span style={{ color: 'var(--color-text-muted)' }}>Peças</span>
-                  <span style={{ fontWeight: 600, fontFamily: 'monospace' }}>R$ {Number(viewTarget.pecas_custo || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                  <span className="money">R$ {Number(viewTarget.pecas_custo || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', borderTop: '1px solid var(--color-border)', paddingTop: '0.5rem', marginTop: '0.25rem' }}>
                   <span style={{ fontWeight: 700 }}>Total Estimado</span>
-                  <span style={{ fontWeight: 800, fontSize: '0.9375rem', color: 'var(--color-success)', fontFamily: 'monospace' }}>
+                  <span className="money" style={{ fontSize: '1rem', color: 'var(--color-success)' }}>
                     R$ {Number(viewTarget.total || (Number(viewTarget.mao_de_obra || 0) + Number(viewTarget.pecas_custo || 0))).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div style={{ background: 'rgba(100,116,139,0.04)', borderLeft: '3px solid #64748b', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
-              <h4 style={{ fontSize: '0.6875rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, margin: '0 0 0.5rem 0', letterSpacing: '0.05em' }}>Observações</h4>
+            <div className="info-card" style={{ '--info-color': '#64748b' }}>
+              <h4 className="info-card-title">Observações</h4>
               <textarea className="input-field" style={{ width: '100%', height: '60px', resize: 'none', fontFamily: 'inherit' }}
                 value={observacaoText} onChange={e => setObservacaoText(e.target.value)} placeholder="Adicione uma observação sobre esta OS..." />
             </div>
@@ -677,7 +694,7 @@ const OrdensServico = () => {
             <p style={{ color: 'var(--color-danger)', fontSize: '0.75rem' }}>Esta ação é permanente e os dados financeiros associados serão perdidos.</p>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
               <button className="btn btn-secondary" onClick={() => setShowDeleteModal(false)}>Cancelar</button>
-              <button className="btn btn-primary" style={{ background: 'var(--color-danger)' }} onClick={handleDelete}>Excluir Definitivamente</button>
+              <button className="btn btn-danger" onClick={handleDelete}>Excluir Definitivamente</button>
             </div>
           </div>
         </Modal>
