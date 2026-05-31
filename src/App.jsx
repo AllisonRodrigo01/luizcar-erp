@@ -287,16 +287,16 @@ const AppLayout = () => {
                   <div style={{ position: 'fixed', inset: 0, zIndex: 40 }} onClick={() => setNotificationsOpen(false)} />
                   <div className="glass-panel" style={{
                     position: 'absolute', top: 'calc(100% + 8px)', right: 0,
-                    width: 380, maxHeight: 440, overflowY: 'auto', zIndex: 50,
+                    width: 'min(380px, calc(100vw - 24px))', minWidth: 300, maxHeight: 440, overflowY: 'auto', zIndex: 50,
                     animation: 'slideDown 0.15s ease',
                     boxShadow: 'var(--shadow-xl)', border: '1px solid var(--color-border)',
                   }}>
-                    <div style={{ padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--color-border)', fontWeight: 600, fontSize: '0.8125rem' }}>
-                      Notificações {notificacoes.length > 0 && `(${notificacoes.length})`}
+                    <div style={{ padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--color-border)', fontWeight: 600, fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>
+                      Avisos {notificacoes.length > 0 && `(${notificacoes.length})`}
                     </div>
                     {notificacoes.length === 0 ? (
                       <div className="empty-state" style={{ padding: '2rem' }}>
-                        <p style={{ fontSize: '0.8125rem' }}>Nenhuma notificação pendente</p>
+                        <p style={{ fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>Nenhuma notificação pendente</p>
                       </div>
                     ) : notificacoes.map(n => (
                       <div key={n.id} onClick={() => handleSendNotificacao(n)} style={{
