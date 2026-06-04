@@ -483,7 +483,7 @@ export default async (req) => {
         return new Response(JSON.stringify({ error: "Dados de backup obrigatórios" }), { status: 400, headers });
       }
 
-      const tables = ['notificacoes', 'agendamentos', 'historico_os', 'fluxo_caixa', 'ordens_servico', 'veiculos', 'clientes', 'estoque', 'configuracoes', 'usuarios'];
+      const tables = ['clientes', 'veiculos', 'usuarios', 'configuracoes', 'estoque', 'fluxo_caixa', 'ordens_servico', 'agendamentos', 'notificacoes', 'historico_os'];
 
       const getTableColumns = async (table) => {
         try {
@@ -500,7 +500,8 @@ export default async (req) => {
         return tableColumnsCache[table];
       };
 
-      for (const table of tables) {
+      const deleteTables = [...tables].reverse();
+      for (const table of deleteTables) {
         try {
           await tursoClient.execute({ sql: `DELETE FROM ${table}` });
         } catch (e) { console.warn(`Import clear ${table}:`, e.message); }
