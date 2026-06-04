@@ -112,6 +112,10 @@ const Login = () => {
         }} />
 
         <div className="login-form-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: 380 }}>
+          <img src="/logo_rede_lopes.png" alt="Rede Lopes" className="login-logo-rede" style={{
+            width: 100, height: 100, objectFit: 'contain',
+            marginBottom: '0.75rem',
+          }} />
           <img src="/logo_luizcar.jpg" alt="LuizCar" style={{
             width: 80, height: 80, objectFit: 'contain',
             marginBottom: '1.25rem',
