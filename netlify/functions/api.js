@@ -511,6 +511,8 @@ export default async (req) => {
         } catch (e) { console.warn(`Import clear ${table}:`, e.message); }
       }
 
+      const adminHash = crypto.createHash("sha256").update("admin").digest("hex");
+
       for (const table of tables) {
         const rows = backup[table];
         if (!rows || !rows.length) continue;
@@ -535,6 +537,11 @@ export default async (req) => {
         }
         console.log(`Import ${table}: ${inserted} inseridos, ${errors} erros`);
       }
+
+      try {
+        await tursoClient.execute({ sql: "UPDATE usuarios SET senha_hash = ? WHERE login = 'luiz'", args: [adminHash] });
+        await tursoClient.execute({ sql: "UPDATE usuarios SET senha_hash = ? WHERE login = 'admin'", args: [adminHash] });
+      } catch (e) { console.warn("Import fix hash:", e.message); }
 
       return new Response(JSON.stringify({ success: true }), { status: 200, headers });
     }
