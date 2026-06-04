@@ -225,9 +225,9 @@ export default async (req) => {
       await ensureColumn("clientes", "cidade", "TEXT");
       await ensureColumn("clientes", "uf", "TEXT");
       try {
+        const adminHash = crypto.createHash("sha256").update("admin").digest("hex");
         const adminCheck = await tursoClient.execute({ sql: "SELECT COUNT(*) as cnt FROM usuarios" });
         if (Number(adminCheck.rows[0]?.cnt || 0) === 0) {
-          const adminHash = crypto.createHash("sha256").update("admin").digest("hex");
           await tursoClient.execute({
             sql: "INSERT INTO usuarios (nome, login, senha_hash, nivel_acesso) VALUES (?, ?, ?, ?)",
             args: ["Administrador", "admin", adminHash, "Admin"],
@@ -237,6 +237,8 @@ export default async (req) => {
             args: ["Luiz", "luiz", adminHash, "Admin"],
           });
         }
+        await tursoClient.execute({ sql: "UPDATE usuarios SET senha_hash = ? WHERE login = 'admin'", args: [adminHash] });
+        await tursoClient.execute({ sql: "UPDATE usuarios SET senha_hash = ? WHERE login = 'luiz'", args: [adminHash] });
       } catch (e) { console.warn("Seed admin error:", e.message); }
       try {
         await tursoClient.execute({ sql: "INSERT OR IGNORE INTO configuracoes (chave, valor) VALUES ('razao_social', 'Luiz Car Oficina Automotiva')" });
