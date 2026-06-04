@@ -239,7 +239,7 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-            <div style={{ height: 260 }}>
+            <div style={{ width: '100%', height: 260 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
                   <defs>
@@ -275,7 +275,7 @@ const Dashboard = () => {
               <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, margin: 0, color: 'var(--color-text-main)' }}>Volume de Entradas</h3>
               <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Últimos 14 dias</p>
             </div>
-            <div style={{ height: 260 }}>
+            <div style={{ width: '100%', height: 260 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={areaData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
                   <defs>
