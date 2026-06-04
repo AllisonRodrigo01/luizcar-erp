@@ -484,6 +484,22 @@ export default async (req) => {
       }
 
       const tables = ['notificacoes', 'agendamentos', 'historico_os', 'fluxo_caixa', 'ordens_servico', 'veiculos', 'clientes', 'estoque', 'configuracoes', 'usuarios'];
+
+      const getTableColumns = async (table) => {
+        try {
+          const info = await tursoClient.execute({ sql: `PRAGMA table_info(${table})` });
+          return new Set(info.rows.map(r => r.name));
+        } catch { return new Set(); }
+      };
+
+      const tableColumnsCache = {};
+      const getCachedColumns = async (table) => {
+        if (!tableColumnsCache[table]) {
+          tableColumnsCache[table] = await getTableColumns(table);
+        }
+        return tableColumnsCache[table];
+      };
+
       for (const table of tables) {
         try {
           await tursoClient.execute({ sql: `DELETE FROM ${table}` });
@@ -493,21 +509,26 @@ export default async (req) => {
       for (const table of tables) {
         const rows = backup[table];
         if (!rows || !rows.length) continue;
+        const existingColumns = await getCachedColumns(table);
+        let inserted = 0, errors = 0;
         for (const row of rows) {
           try {
             const cleaned = {};
             for (const [key, val] of Object.entries(row)) {
-              if (val !== null && val !== undefined) cleaned[key] = val;
+              if (val !== null && val !== undefined && existingColumns.has(key)) cleaned[key] = val;
             }
             const columns = Object.keys(cleaned);
+            if (columns.length === 0) { errors++; continue; }
             const values = Object.values(cleaned);
             const placeholders = columns.map(() => "?").join(", ");
             await tursoClient.execute({
               sql: `INSERT INTO ${table} (${columns.join(", ")}) VALUES (${placeholders})`,
               args: values,
             });
-          } catch (e) { console.warn(`Import row ${table}:`, e.message); }
+            inserted++;
+          } catch (e) { errors++; console.warn(`Import row ${table}:`, e.message); }
         }
+        console.log(`Import ${table}: ${inserted} inseridos, ${errors} erros`);
       }
 
       return new Response(JSON.stringify({ success: true }), { status: 200, headers });
