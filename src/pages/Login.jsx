@@ -42,7 +42,7 @@ const Login = () => {
       {/* Left Panel — Brand */}
       <div className="login-brand-panel" style={{
         flex: '1 1 55%', position: 'relative', overflow: 'hidden',
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        flexDirection: 'column', alignItems: 'center',
         justifyContent: 'center', minHeight: '100vh',
         backgroundColor: '#1a1a2e',
       }} data-hide-on-mobile>
