@@ -776,8 +776,6 @@ main {
 
   thead th, tbody td { padding: 0.7rem 0.75rem; font-size: 0.75rem; }
 
-  .login-brand-panel { flex: 0 0 45% !important; padding: 2rem 1.5rem; }
-  .login-brand-panel + div { flex: 0 0 360px !important; padding: 1.5rem 1.25rem !important; }
 }
 
 /* ===== RESPONSIVE - TABLET (max 1024) ===== */
@@ -1093,6 +1091,8 @@ main {
     font-size: 1.1rem !important;
   }
 }
+
+
 
 /* ===== RESPONSIVE - LANDSCAPE MOBILE ===== */
 @media (max-width: 768px) and (orientation: landscape) {
