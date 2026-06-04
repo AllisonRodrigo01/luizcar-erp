@@ -23,6 +23,7 @@ const Financeiro = () => {
   const [chartData, setChartData] = useState([]);
   const [mecanicos, setMecanicos] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [chartPeriod, setChartPeriod] = useState('6month');
 
   const monthOptions = [
     { value: '01', label: 'Janeiro' }, { value: '02', label: 'Fevereiro' }, { value: '03', label: 'Março' },
@@ -45,7 +46,8 @@ const Financeiro = () => {
         if (filterYear !== 'todos') { osConditions.push("strftime('%Y', os.data_saida) = ?"); osArgs.push(filterYear); }
 
         const osQuery = `SELECT os.id, c.nome as cliente, v.marca || ' ' || v.modelo || ' (' || v.placa || ')' as veiculo, os.data_saida as data_conclusao, os.total, os.mao_de_obra, os.mecanico_id, os.comissao_percentual, u.nome as mecanico FROM ordens_servico os LEFT JOIN clientes c ON os.cliente_id = c.id LEFT JOIN veiculos v ON os.veiculo_id = v.id LEFT JOIN usuarios u ON os.mecanico_id = u.id WHERE ${osConditions.join(' AND ')} ORDER BY os.data_saida DESC`;
-        const chartQuery = `SELECT strftime('%Y-%m', data_saida) as mes, SUM(total) as valor FROM ordens_servico WHERE status = 'Concluída' AND data_saida >= date('now', '-6 month') GROUP BY mes ORDER BY mes ASC`;
+        const chartDateFilter = { '30d': '-30 days', '90d': '-90 days', '6month': '-6 month', '12month': '-12 month' }[chartPeriod] || '-6 month';
+        const chartQuery = `SELECT strftime('%Y-%m', data_saida) as mes, SUM(total) as valor FROM ordens_servico WHERE status = 'Concluída' AND data_saida >= date('now', '${chartDateFilter}') GROUP BY mes ORDER BY mes ASC`;
         const employeesQuery = 'SELECT id, nome FROM usuarios ORDER BY nome';
 
         const [osResult, chartResult, employeesResult] = await Promise.all([
@@ -74,7 +76,7 @@ const Financeiro = () => {
       } finally { setLoading(false); }
     };
     fetchFinanceiroData();
-  }, [filterMonth, filterYear]);
+  }, [filterMonth, filterYear, chartPeriod]);
 
   const InteractiveChart = () => {
     const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -237,7 +239,18 @@ const Financeiro = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div>
                 <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, margin: 0 }}>Evolução de Receita Recente</h3>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Últimos 6 meses</p>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                  Últimos {({ '30d': '30 dias', '90d': '90 dias', '6month': '6 meses', '12month': '12 meses' })[chartPeriod] || '6 meses'}
+                </p>
+              </div>
+              <div>
+                <select className="input-field" value={chartPeriod} onChange={e => setChartPeriod(e.target.value)}
+                  style={{ marginBottom: 0, padding: '0.35rem 0.5rem', fontSize: '0.75rem', minWidth: 0 }}>
+                  <option value="30d">30 dias</option>
+                  <option value="90d">90 dias</option>
+                  <option value="6month">6 meses</option>
+                  <option value="12month">12 meses</option>
+                </select>
               </div>
             </div>
             {chartData.length > 0 ? <InteractiveChart /> : (

@@ -38,11 +38,26 @@ const KPICard = ({ title, value, subtitle, icon: Icon, color, bg, trend, trendUp
   );
 };
 
+const periodOptions = [
+  { value: '30d', label: '30 dias' },
+  { value: '90d', label: '90 dias' },
+  { value: '6month', label: '6 meses' },
+  { value: '12month', label: '12 meses' },
+];
+
+const periodToSql = {
+  '30d': '-30 days',
+  '90d': '-90 days',
+  '6month': '-6 month',
+  '12month': '-12 month',
+};
+
 const Dashboard = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState({ clientes: 0, veiculos: 0, osPendentes: 0, faturamentoMes: 0, osConcluidasMes: 0 });
   const [chartData, setChartData] = useState([]);
   const [areaData, setAreaData] = useState([]);
+  const [period, setPeriod] = useState('6month');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,6 +65,7 @@ const Dashboard = () => {
       try {
         const now = new Date();
         const mesAtual = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const dateFilter = periodToSql[period] || '-6 month';
 
         const [clientes, veiculos, osPendentes, faturamentoMes, osConcluidasMes, chartRows, areaRows] = await Promise.all([
           api.query("SELECT COUNT(*) as total FROM clientes"),
@@ -66,7 +82,7 @@ const Dashboard = () => {
           api.query(`
             SELECT strftime('%Y-%m', data_saida) as mes, SUM(total) as receitas
             FROM ordens_servico
-            WHERE status = 'Concluída' AND data_saida >= date('now', '-6 month')
+            WHERE status = 'Concluída' AND data_saida >= date('now', '${dateFilter}')
             GROUP BY mes ORDER BY mes ASC
           `),
           api.query(`
@@ -105,7 +121,7 @@ const Dashboard = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [period]);
 
   const fmt = (val) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -210,11 +226,17 @@ const Dashboard = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div>
                 <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, margin: 0, color: 'var(--color-text-main)' }}>Evolução de Receitas</h3>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Últimos 6 meses</p>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Últimos {periodOptions.find(o => o.value === period)?.label || '6 meses'}</p>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <div style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--color-success)' }}></div>
-                <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>Receitas</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <select className="input-field" value={period} onChange={e => setPeriod(e.target.value)}
+                  style={{ marginBottom: 0, padding: '0.35rem 0.5rem', fontSize: '0.75rem', minWidth: 0 }}>
+                  {periodOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <div style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--color-success)' }}></div>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>Receitas</span>
+                </div>
               </div>
             </div>
             <div style={{ height: 260 }}>
