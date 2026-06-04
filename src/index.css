@@ -1050,7 +1050,10 @@ main {
 }
 
 /* ===== LOGIN RESPONSIVE ===== */
-@media (max-width: 900px) {
+.login-form-panel {
+  flex: 0 0 440px;
+}
+@media (max-width: 960px) {
   .login-brand-panel[data-hide-on-mobile] {
     display: none !important;
   }
@@ -1060,6 +1063,18 @@ main {
   }
   .login-form-panel h2 {
     font-size: 1.2rem !important;
+  }
+  .login-form-panel img[alt="LuizCar"] {
+    width: 60px !important;
+    height: 60px !important;
+  }
+}
+@media (max-width: 480px) {
+  .login-form-panel {
+    padding: 1.5rem 1rem !important;
+  }
+  .login-form-panel h2 {
+    font-size: 1.1rem !important;
   }
 }
 
