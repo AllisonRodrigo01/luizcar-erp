@@ -78,6 +78,13 @@ const Financeiro = () => {
 
   const InteractiveChart = () => {
     const [hoveredIndex, setHoveredIndex] = useState(null);
+    if (chartData.length < 2) {
+      return (
+        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+          {chartData.length === 0 ? 'Nenhum dado disponível.' : 'Apenas um mês de dados. O gráfico será exibido quando houver mais períodos.'}
+        </div>
+      );
+    }
     const maxVal = Math.max(...chartData.map(d => d.valor)) * 1.15;
     const width = 600, height = 220, paddingX = 50, paddingY = 30;
     const chartW = width - 2 * paddingX, chartH = height - 2 * paddingY;
@@ -131,14 +138,15 @@ const Financeiro = () => {
             left: `${(points[hoveredIndex].cx / width) * 100}%`,
             top: `${(points[hoveredIndex].cy / height) * 100 - 25}%`,
             transform: 'translate(-50%, -100%)',
-            background: 'var(--color-sidebar)', color: 'white',
+            background: 'var(--color-bg-surface)',
+            color: 'var(--color-text-main)',
             padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-md)',
             boxShadow: 'var(--shadow-lg)', fontSize: '0.75rem', fontWeight: '600',
             whiteSpace: 'nowrap', zIndex: 10, pointerEvents: 'none',
-            border: '1px solid rgba(255,255,255,0.1)', animation: 'fadeIn 0.15s ease'
+            border: '1px solid var(--color-border)',
           }}>
-            <div style={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>{chartData[hoveredIndex].label}</div>
-            <div>R$ {chartData[hoveredIndex].valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+            <div style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>{chartData[hoveredIndex].label}</div>
+            <div>{chartData[hoveredIndex].valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</div>
           </div>
         )}
       </div>

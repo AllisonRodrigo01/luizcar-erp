@@ -79,13 +79,14 @@ const Dashboard = () => {
 
         const mesNomes = { '01':'Jan','02':'Fev','03':'Mar','04':'Abr','05':'Mai','06':'Jun','07':'Jul','08':'Ago','09':'Set','10':'Out','11':'Nov','12':'Dez' };
         const chart = (chartRows.rows || []).map(r => {
-          const [y, m] = (r[0] || '').split('-');
-          return { name: `${mesNomes[m] || m}/${(y||'').slice(2)}`, receitas: Number(r[1]) || 0 };
+          const mes = r.mes ?? r[0] ?? '';
+          const [y, m] = mes.split('-');
+          return { name: `${mesNomes[m] || m}/${(y||'').slice(2)}`, receitas: Number(r.receitas ?? r[1] ?? 0) };
         });
 
         const area = (areaRows.rows || []).map(r => ({
-          dia: new Date(r[0]).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-          qtd: Number(r[1]) || 0,
+          dia: new Date(r.dia ?? r[0]).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+          qtd: Number(r.qtd ?? r[1] ?? 0),
         }));
 
         setStats({
@@ -229,13 +230,16 @@ const Dashboard = () => {
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-muted)', fontSize: 11 }} dy={8} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-muted)', fontSize: 11 }} tickFormatter={v => `R$${(v/1000).toFixed(0)}k`} />
                   <Tooltip
-                    cursor={{ fill: 'rgba(0,0,0,0.03)' }}
+                    cursor={{ fill: 'var(--color-border-light)' }}
                     contentStyle={{
                       borderRadius: 'var(--radius-md)',
                       border: '1px solid var(--color-border)',
+                      background: 'var(--color-bg-surface)',
                       boxShadow: 'var(--shadow-lg)',
                       fontSize: '0.75rem',
                     }}
+                    itemStyle={{ color: 'var(--color-text-main)' }}
+                    labelStyle={{ color: 'var(--color-text-muted)' }}
                     formatter={v => fmt(v)}
                   />
                   <Bar dataKey="receitas" fill="url(#barGrad)" radius={[4, 4, 0, 0]} barSize={28} />
@@ -265,9 +269,12 @@ const Dashboard = () => {
                     contentStyle={{
                       borderRadius: 'var(--radius-md)',
                       border: '1px solid var(--color-border)',
+                      background: 'var(--color-bg-surface)',
                       boxShadow: 'var(--shadow-lg)',
                       fontSize: '0.75rem',
                     }}
+                    itemStyle={{ color: 'var(--color-text-main)' }}
+                    labelStyle={{ color: 'var(--color-text-muted)' }}
                   />
                   <Area type="monotone" dataKey="qtd" stroke="var(--color-primary)" strokeWidth={2} fill="url(#areaGrad)" />
                 </AreaChart>
