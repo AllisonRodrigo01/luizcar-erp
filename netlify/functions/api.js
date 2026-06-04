@@ -237,8 +237,6 @@ export default async (req) => {
             args: ["Luiz", "luiz", adminHash, "Admin"],
           });
         }
-        await tursoClient.execute({ sql: "UPDATE usuarios SET senha_hash = ? WHERE login = 'admin'", args: [adminHash] });
-        await tursoClient.execute({ sql: "UPDATE usuarios SET senha_hash = ? WHERE login = 'luiz'", args: [adminHash] });
       } catch (e) { console.warn("Seed admin error:", e.message); }
       try {
         await tursoClient.execute({ sql: "INSERT OR IGNORE INTO configuracoes (chave, valor) VALUES ('razao_social', 'Luiz Car Oficina Automotiva')" });
