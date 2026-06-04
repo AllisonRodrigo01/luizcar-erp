@@ -232,6 +232,10 @@ export default async (req) => {
             sql: "INSERT INTO usuarios (nome, login, senha_hash, nivel_acesso) VALUES (?, ?, ?, ?)",
             args: ["Administrador", "admin", adminHash, "Admin"],
           });
+          await tursoClient.execute({
+            sql: "INSERT INTO usuarios (nome, login, senha_hash, nivel_acesso) VALUES (?, ?, ?, ?)",
+            args: ["Luiz", "luiz", adminHash, "Admin"],
+          });
         }
       } catch (e) { console.warn("Seed admin error:", e.message); }
       try {
