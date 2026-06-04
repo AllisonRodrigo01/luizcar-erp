@@ -1052,8 +1052,9 @@ main {
 /* ===== LOGIN RESPONSIVE ===== */
 .login-form-panel {
   flex: 0 0 440px;
+  overflow-y: auto;
 }
-@media (max-width: 960px) {
+@media (max-width: 1100px) {
   .login-brand-panel[data-hide-on-mobile] {
     display: none !important;
   }

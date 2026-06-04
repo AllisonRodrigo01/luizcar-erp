@@ -37,7 +37,6 @@ const Login = () => {
   return (
     <div style={{
       display: 'flex', minHeight: '100vh', width: '100%',
-      overflow: 'hidden',
       background: 'var(--color-bg-base)', fontFamily: "'Inter', sans-serif",
     }}>
       {/* Left Panel — Brand */}
@@ -67,19 +66,19 @@ const Login = () => {
               marginBottom: '2.5rem', filter: 'drop-shadow(0 8px 30px rgba(0,0,0,0.5))',
             }} />
             <h1 style={{
-              fontSize: '3rem', fontWeight: 800, color: 'var(--color-text-main)', margin: 0,
+              fontSize: '3rem', fontWeight: 800, color: '#ffffff', margin: 0,
               lineHeight: 1.1, letterSpacing: '-0.03em',
             }}>
-              Rede <span style={{ color: 'var(--color-primary)' }}>Lopes</span>
+              Rede <span style={{ color: '#60a5fa' }}>Lopes</span>
             </h1>
-            <p style={{ color: 'var(--color-text-secondary)', fontSize: '1rem', marginTop: '0.5rem', fontWeight: 400 }}>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', marginTop: '0.5rem', fontWeight: 400 }}>
               Soluções inteligentes para sua empresa
             </p>
           </div>
 
           <div style={{
-            width: '100%', background: 'rgba(255,255,255,0.03)',
-            backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.06)',
+            width: '100%', background: 'rgba(0,0,0,0.35)',
+            border: '1px solid rgba(255,255,255,0.10)',
             borderRadius: 16, padding: '1.5rem 2rem', textAlign: 'left',
           }}>
             <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
