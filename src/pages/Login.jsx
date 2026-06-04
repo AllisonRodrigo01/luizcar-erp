@@ -44,15 +44,17 @@ const Login = () => {
         flex: '1 1 55%', position: 'relative', overflow: 'hidden',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         justifyContent: 'center', minHeight: '100vh',
+        background: 'linear-gradient(135deg, #0f1c35 0%, #1a1a2e 50%, #16213e 100%)',
       }} data-hide-on-mobile>
         <div style={{
           position: 'absolute', inset: 0,
           backgroundImage: 'url(https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1920&q=80)',
           backgroundSize: 'cover', backgroundPosition: 'center',
+          opacity: 0.35,
         }} />
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'rgba(255,255,255,0.35)',
+          background: 'linear-gradient(135deg, rgba(15,28,53,0.85) 0%, rgba(26,26,46,0.70) 50%, rgba(22,33,62,0.85) 100%)',
         }} />
 
         <div style={{
