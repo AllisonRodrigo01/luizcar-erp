@@ -1049,6 +1049,20 @@ main {
   }
 }
 
+/* ===== LOGIN RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .login-brand-panel[data-hide-on-mobile] {
+    display: none !important;
+  }
+  .login-form-panel {
+    flex: 1 !important;
+    padding: 2rem 1.5rem !important;
+  }
+  .login-form-panel h2 {
+    font-size: 1.2rem !important;
+  }
+}
+
 /* ===== RESPONSIVE - LANDSCAPE MOBILE ===== */
 @media (max-width: 768px) and (orientation: landscape) {
   .sidebar {

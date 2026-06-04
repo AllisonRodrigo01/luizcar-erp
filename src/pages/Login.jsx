@@ -44,7 +44,7 @@ const Login = () => {
         flex: '1 1 55%', position: 'relative', overflow: 'hidden',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         justifyContent: 'center', minHeight: '100vh',
-      }}>
+      }} data-hide-on-mobile>
         <div style={{
           position: 'absolute', inset: 0,
           backgroundImage: 'url(https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1920&q=80)',
@@ -99,8 +99,8 @@ const Login = () => {
       </div>
 
       {/* Right Panel — Login Form */}
-      <div style={{
-        flex: '0 0 440px', display: 'flex', flexDirection: 'column',
+      <div className="login-form-panel" style={{
+        display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
         background: 'var(--color-bg-surface)', borderLeft: '1px solid var(--color-border)',
         padding: '3rem 2.5rem', position: 'relative',
