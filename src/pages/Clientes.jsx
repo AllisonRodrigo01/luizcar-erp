@@ -1,12 +1,59 @@
-import React, { useEffect, useState } from 'react';
-import { Users, Plus, Search, Edit2, Trash2, X, Phone, Mail, CheckCircle, XCircle, Filter, MessageSquare } from 'lucide-react';
-import { api } from '../lib/api';
+import { useEffect, useState } from 'react';
+import { Users, Plus, Search, Edit2, Trash2, X, Phone, Mail, CheckCircle, XCircle, Filter, MessageSquare, MapPin, Search as SearchIcon } from 'lucide-react';
+import { api, openExternal, hojeLocal } from '../lib/api';
 
-const initForm = { nome: '', telefone: '', email: '', cpf: '', endereco: '', ativo: 1 };
+const initForm = {
+  tipo_documento: 'Física', nome: '', cpf_cnpj: '', telefone: '', email: '',
+  cep: '', logradouro: '', numero: '', complemento: '', bairro: '', cidade: '', uf: '',
+  ativo: 1
+};
+
+const fetchCep = async (cep, setForm) => {
+  const digits = cep.replace(/\D/g, '');
+  if (digits.length !== 8) return;
+  try {
+    const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+    const data = await res.json();
+    if (data.erro) return;
+    setForm(f => ({
+      ...f,
+      logradouro: data.logradouro || f.logradouro,
+      complemento: data.complemento || f.complemento,
+      bairro: data.bairro || f.bairro,
+      cidade: data.localidade || f.cidade,
+      uf: data.uf || f.uf,
+    }));
+  } catch {}
+};
+
+const mascaraCPF = v => {
+  const d = v.replace(/\D/g, '').slice(0, 11);
+  return d.replace(/(\d{3})(\d)/, '$1.$2')
+          .replace(/(\d{3})(\d)/, '$1.$2')
+          .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+};
+
+const mascaraCNPJ = v => {
+  const d = v.replace(/\D/g, '').slice(0, 14);
+  return d.replace(/(\d{2})(\d)/, '$1.$2')
+          .replace(/(\d{3})(\d)/, '$1.$2')
+          .replace(/(\d{3})(\d)/, '$1/$2')
+          .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+};
+
+const mascaraTelefone = v => {
+  const d = v.replace(/\D/g, '').slice(0, 11);
+  if (d.length <= 10) {
+    return d.replace(/(\d{2})(\d)/, '($1) $2')
+            .replace(/(\d{4})(\d)/, '$1-$2');
+  }
+  return d.replace(/(\d{2})(\d)/, '($1) $2')
+          .replace(/(\d{5})(\d)/, '$1-$2');
+};
 
 const Modal = ({ title, onClose, children, show }) => (
   <div className="modal-overlay" style={{ display: show ? 'flex' : 'none' }} onClick={onClose}>
-    <div className="modal-content" style={{ maxWidth: '520px' }} onClick={e => e.stopPropagation()}>
+    <div className="modal-content" style={{ maxWidth: '640px' }} onClick={e => e.stopPropagation()}>
       <div className="modal-header">
         <h3>{title}</h3>
         <button className="modal-close" onClick={onClose}><X size={18} /></button>
@@ -34,8 +81,7 @@ const Clientes = () => {
     setLoading(true);
     try {
       const res = await api.query('SELECT * FROM clientes ORDER BY nome');
-      const list = (res.rows || []).map(r => ({ ...r, cpf: r.cpf_cnpj || '' }));
-      setClientes(list);
+      setClientes(res.rows || []);
     } catch (e) {
       console.error('Erro carregar clientes:', e);
       setClientes([]);
@@ -52,8 +98,8 @@ const Clientes = () => {
     const nome = (c.nome || '').toLowerCase();
     const tel = (c.telefone || '');
     const email = (c.email || '').toLowerCase();
-    const cpf = (c.cpf || '');
-    const matchSearch = nome.includes(s) || tel.includes(s) || email.includes(s) || cpf.includes(s);
+    const doc = (c.cpf_cnpj || '');
+    const matchSearch = nome.includes(s) || tel.includes(s) || email.includes(s) || doc.includes(s);
     const matchStatus = filterStatus === 'todos' || (filterStatus === 'ativo' ? c.ativo : !c.ativo);
     return matchSearch && matchStatus;
   });
@@ -66,7 +112,13 @@ const Clientes = () => {
 
   const openEdit = (c) => {
     if (!c) return;
-    setForm({ nome: c.nome || '', telefone: c.telefone || '', email: c.email || '', cpf: c.cpf || '', endereco: c.endereco || '', ativo: c.ativo ?? 1 });
+    setForm({
+      tipo_documento: c.tipo_documento || 'Física', nome: c.nome || '',
+      cpf_cnpj: c.cpf_cnpj || '', telefone: c.telefone || '', email: c.email || '',
+      cep: c.cep || '', logradouro: c.logradouro || '', numero: c.numero || '',
+      complemento: c.complemento || '', bairro: c.bairro || '', cidade: c.cidade || '',
+      uf: c.uf || '', ativo: c.ativo ?? 1
+    });
     setError('');
     setEditTarget(c);
     setShowEditModal(true);
@@ -82,7 +134,7 @@ const Clientes = () => {
     let telefone = (c.telefone || '').replace(/\D/g, '');
     if (telefone && !telefone.startsWith('55')) telefone = `55${telefone}`;
     const text = encodeURIComponent('Olá, sou LuizCar! Tudo bem?');
-    window.open(`https://wa.me/${telefone}?text=${text}`, '_blank');
+    openExternal(`https://wa.me/${telefone}?text=${text}`);
   };
 
   const save = async () => {
@@ -92,18 +144,25 @@ const Clientes = () => {
     }
     setError('');
     const data = {
+      tipo_documento: form.tipo_documento,
       nome: form.nome.trim(),
+      cpf_cnpj: form.cpf_cnpj?.trim() || null,
       telefone: form.telefone.trim(),
       email: form.email?.trim() || null,
-      cpf_cnpj: form.cpf?.trim() || null,
-      endereco: form.endereco?.trim() || null,
+      cep: form.cep?.trim() || null,
+      logradouro: form.logradouro?.trim() || null,
+      numero: form.numero?.trim() || null,
+      complemento: form.complemento?.trim() || null,
+      bairro: form.bairro?.trim() || null,
+      cidade: form.cidade?.trim() || null,
+      uf: form.uf?.trim() || null,
       ativo: Number(form.ativo),
     };
     try {
       if (editTarget && editTarget.id) {
         await api.update('clientes', data, 'id = ?', [editTarget.id]);
       } else {
-        await api.insert('clientes', { ...data, criado_em: new Date().toISOString().split('T')[0] });
+        await api.insert('clientes', { ...data, criado_em: hojeLocal() });
       }
       setShowNewModal(false);
       setShowEditModal(false);
@@ -188,7 +247,7 @@ const Clientes = () => {
               <tr>
                 <th>Cliente</th>
                 <th>Contato</th>
-                <th>CPF</th>
+                <th>CPF/CNPJ</th>
                 <th>Cadastro</th>
                 <th>Status</th>
                 <th style={{ textAlign: 'right' }}>Ações</th>
@@ -199,13 +258,13 @@ const Clientes = () => {
                 const nome = c.nome || '';
                 const telefone = c.telefone || '';
                 const email = c.email || '';
-                const cpf = c.cpf || '';
-                const endereco = c.endereco || '';
+                const cpf = c.cpf_cnpj || '';
+                const endereco = [c.logradouro, c.numero, c.bairro, c.cidade].filter(Boolean).join(', ');
                 const criado_em = c.criado_em || '';
                 const ativo = Boolean(c.ativo);
                 const id = c.id;
                 return (
-                  <tr key={id ?? Math.random()}>
+                  <tr key={id}>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <div style={{
@@ -267,32 +326,93 @@ const Clientes = () => {
           </div>
         )}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 1rem' }}>
-          <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
-            <label className="input-label">Nome Completo *</label>
-            <input className="input-field" style={{ width: '100%' }} placeholder="Nome do cliente" data-gramm="false"
+          <div style={{ gridColumn: '1 / -1', marginBottom: '0.75rem' }}>
+            <label className="input-label">Tipo *</label>
+            <select className="input-field" style={{ width: '100%' }}
+              value={form.tipo_documento} onChange={e => setForm(f => ({ ...f, tipo_documento: e.target.value, cpf_cnpj: '' }))}>
+              <option value="Física">Pessoa Física</option>
+              <option value="Jurídica">Pessoa Jurídica</option>
+            </select>
+          </div>
+          <div style={{ gridColumn: '1 / -1', marginBottom: '0.75rem' }}>
+            <label className="input-label">Nome *</label>
+            <input className="input-field" style={{ width: '100%' }} placeholder="Nome completo" data-gramm="false"
               value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} />
           </div>
-          <div style={{ marginBottom: '1rem' }}>
-            <label className="input-label">Telefone *</label>
+          <div style={{ marginBottom: '0.75rem' }}>
+            <label className="input-label">{form.tipo_documento === 'Física' ? 'CPF' : 'CNPJ'}</label>
+            <input className="input-field" style={{ width: '100%' }}
+              placeholder={form.tipo_documento === 'Física' ? '000.000.000-00' : '00.000.000/0001-00'} data-gramm="false"
+              value={form.cpf_cnpj} onChange={e => setForm(f => ({ ...f, cpf_cnpj: f.tipo_documento === 'Física' ? mascaraCPF(e.target.value) : mascaraCNPJ(e.target.value) }))} />
+          </div>
+          <div style={{ marginBottom: '0.75rem' }}>
+            <label className="input-label">Telefone / WhatsApp *</label>
             <input className="input-field" style={{ width: '100%' }} placeholder="(00) 00000-0000" data-gramm="false"
-              value={form.telefone} onChange={e => setForm(f => ({ ...f, telefone: e.target.value }))} />
+              value={form.telefone} onChange={e => setForm(f => ({ ...f, telefone: mascaraTelefone(e.target.value) }))} />
           </div>
-          <div style={{ marginBottom: '1rem' }}>
-            <label className="input-label">CPF</label>
-            <input className="input-field" style={{ width: '100%' }} placeholder="000.000.000-00" data-gramm="false"
-              value={form.cpf} onChange={e => setForm(f => ({ ...f, cpf: e.target.value }))} />
-          </div>
-          <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
+          <div style={{ gridColumn: '1 / -1', marginBottom: '0.75rem' }}>
             <label className="input-label">E-mail</label>
             <input className="input-field" style={{ width: '100%' }} placeholder="email@exemplo.com" type="email" data-gramm="false"
               value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
           </div>
-          <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
-            <label className="input-label">Endereço</label>
-            <input className="input-field" style={{ width: '100%' }} placeholder="Rua, número, bairro" data-gramm="false"
-              value={form.endereco} onChange={e => setForm(f => ({ ...f, endereco: e.target.value }))} />
+          <div style={{ gridColumn: '1 / -1', borderTop: '1px solid var(--color-border)', margin: '0.5rem 0 1rem', paddingTop: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <MapPin size={15} color="var(--color-primary)" />
+              <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>Endereço</span>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '0.75rem' }}>
+              <div style={{ flex: 1 }}>
+                <label className="input-label">CEP</label>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input className="input-field" style={{ flex: 1 }} placeholder="00000-000" data-gramm="false"
+                    value={form.cep} onChange={e => {
+                      const v = e.target.value.replace(/\D/g, '').slice(0, 8);
+                      const fmt = v.length > 5 ? v.slice(0, 5) + '-' + v.slice(5) : v;
+                      setForm(f => ({ ...f, cep: fmt }));
+                    }} />
+                  <button type="button" className="btn btn-secondary" style={{ height: 36, display: 'flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}
+                    onClick={() => fetchCep(form.cep, setForm)}>
+                    <SearchIcon size={13} /> Buscar
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
+              <div>
+                <label className="input-label">Logradouro</label>
+                <input className="input-field" style={{ width: '100%' }} placeholder="Rua, Av..." data-gramm="false"
+                  value={form.logradouro} onChange={e => setForm(f => ({ ...f, logradouro: e.target.value }))} />
+              </div>
+              <div>
+                <label className="input-label">Número</label>
+                <input className="input-field" style={{ width: '100%' }} placeholder="Nº" data-gramm="false"
+                  value={form.numero} onChange={e => setForm(f => ({ ...f, numero: e.target.value }))} />
+              </div>
+              <div>
+                <label className="input-label">Complemento</label>
+                <input className="input-field" style={{ width: '100%' }} placeholder="Apto, sala..." data-gramm="false"
+                  value={form.complemento} onChange={e => setForm(f => ({ ...f, complemento: e.target.value }))} />
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
+              <div>
+                <label className="input-label">Bairro</label>
+                <input className="input-field" style={{ width: '100%' }} placeholder="Bairro" data-gramm="false"
+                  value={form.bairro} onChange={e => setForm(f => ({ ...f, bairro: e.target.value }))} />
+              </div>
+              <div>
+                <label className="input-label">Cidade</label>
+                <input className="input-field" style={{ width: '100%' }} placeholder="Cidade" data-gramm="false"
+                  value={form.cidade} onChange={e => setForm(f => ({ ...f, cidade: e.target.value }))} />
+              </div>
+              <div>
+                <label className="input-label">UF</label>
+                <input className="input-field" style={{ width: '100%' }} placeholder="MG" maxLength={2} data-gramm="false"
+                  value={form.uf} onChange={e => setForm(f => ({ ...f, uf: e.target.value.toUpperCase() }))} />
+              </div>
+            </div>
           </div>
-          <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
+          <div style={{ gridColumn: '1 / -1', marginBottom: 0 }}>
             <label className="input-label">Status</label>
             <select className="input-field" style={{ width: '100%' }}
               value={form.ativo} onChange={e => setForm(f => ({ ...f, ativo: Number(e.target.value) }))}>

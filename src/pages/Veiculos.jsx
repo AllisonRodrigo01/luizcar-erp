@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Car, Plus, Search, Edit2, Trash2, X, User } from 'lucide-react';
-import { api } from '../lib/api';
+import { api, hojeLocal } from '../lib/api';
 
 const emptyForm = { placa: '', marca: '', modelo: '', ano: new Date().getFullYear(), cor: '', cliente: '', quilometragem: '', combustivel: 'Flex', observacoes: '' };
 
@@ -18,6 +18,15 @@ const Modal = ({ title, onClose, children, show }) => (
 
 const corOptions = ['Branco', 'Preto', 'Prata', 'Cinza', 'Vermelho', 'Azul', 'Verde', 'Amarelo', 'Marrom', 'Bege', 'Laranja', 'Outro'];
 const combustivelOptions = ['Flex', 'Gasolina', 'Etanol', 'Diesel', 'GNV', 'Elétrico', 'Híbrido'];
+const marcaOptions = [
+  'Agrale', 'Audi', 'BMW', 'BYD', 'Chery', 'Chevrolet', 'Chrysler',
+  'Citroën', 'Dodge', 'Fiat', 'Ford', 'GWM', 'Hafei', 'Honda',
+  'Hyundai', 'Isuzu', 'Iveco', 'JAC', 'Jaguar', 'Jeep', 'Kia',
+  'Land Rover', 'Lexus', 'Lifan', 'Mahindra', 'Mazda', 'Mercedes-Benz',
+  'Mini', 'Mitsubishi', 'Nissan', 'Peugeot', 'Porsche', 'RAM',
+  'Renault', 'Rolls-Royce', 'Seat', 'Subaru', 'Suzuki', 'Tata',
+  'Toyota', 'Troller', 'Volkswagen', 'Volvo', 'Outro'
+];
 
 const marcaColors = { Honda: '#e22', Toyota: '#c00', Volkswagen: '#06c', Ford: '#039', Chevrolet: '#c60', Hyundai: '#039', Fiat: '#900', Renault: '#f50', Nissan: '#c00', Mitsubishi: '#a00' };
 
@@ -87,7 +96,7 @@ const Veiculos = () => {
       } else {
         await api.insert('veiculos', {
           ...data,
-          criado_em: new Date().toISOString().split('T')[0]
+          criado_em: hojeLocal()
         });
       }
       setShowModal(false);
@@ -206,8 +215,15 @@ const Veiculos = () => {
             </div>
             <div style={{ marginBottom: '0.75rem' }}>
               <label className="input-label">Marca *</label>
-              <input className="input-field" style={{ width: '100%' }} placeholder="Honda..."
-                value={form.marca} onChange={e => setForm(p => ({ ...p, marca: e.target.value }))} data-gramm="false" />
+              <select className="input-field" style={{ width: '100%' }}
+                value={marcaOptions.includes(form.marca) ? form.marca : 'Outro'}
+                onChange={e => {
+                  const val = e.target.value;
+                  setForm(p => ({ ...p, marca: val }));
+                }}>
+                <option value="">Selecione...</option>
+                {marcaOptions.map(m => <option key={m}>{m}</option>)}
+              </select>
             </div>
             <div style={{ marginBottom: '0.75rem' }}>
               <label className="input-label">Modelo *</label>
