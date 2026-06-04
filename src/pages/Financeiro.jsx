@@ -42,12 +42,12 @@ const Financeiro = () => {
       try {
         const osConditions = ["os.status = 'Concluída'"];
         const osArgs = [];
-        if (filterMonth !== 'todos') { osConditions.push("strftime('%m', os.data_saida) = ?"); osArgs.push(filterMonth); }
-        if (filterYear !== 'todos') { osConditions.push("strftime('%Y', os.data_saida) = ?"); osArgs.push(filterYear); }
+        if (filterMonth !== 'todos') { osConditions.push("COALESCE(strftime('%m', os.data_saida), strftime('%m', os.data_entrada)) = ?"); osArgs.push(filterMonth); }
+        if (filterYear !== 'todos') { osConditions.push("COALESCE(strftime('%Y', os.data_saida), strftime('%Y', os.data_entrada)) = ?"); osArgs.push(filterYear); }
 
-        const osQuery = `SELECT os.id, c.nome as cliente, v.marca || ' ' || v.modelo || ' (' || v.placa || ')' as veiculo, os.data_saida as data_conclusao, os.total, os.mao_de_obra, os.mecanico_id, os.comissao_percentual, u.nome as mecanico FROM ordens_servico os LEFT JOIN clientes c ON os.cliente_id = c.id LEFT JOIN veiculos v ON os.veiculo_id = v.id LEFT JOIN usuarios u ON os.mecanico_id = u.id WHERE ${osConditions.join(' AND ')} ORDER BY os.data_saida DESC`;
+        const osQuery = `SELECT os.id, c.nome as cliente, v.marca || ' ' || v.modelo || ' (' || v.placa || ')' as veiculo, COALESCE(os.data_saida, os.data_entrada) as data_conclusao, os.total, os.mao_de_obra, os.mecanico_id, os.comissao_percentual, u.nome as mecanico FROM ordens_servico os LEFT JOIN clientes c ON os.cliente_id = c.id LEFT JOIN veiculos v ON os.veiculo_id = v.id LEFT JOIN usuarios u ON os.mecanico_id = u.id WHERE ${osConditions.join(' AND ')} ORDER BY COALESCE(os.data_saida, os.data_entrada) DESC`;
         const chartDateFilter = { '30d': '-30 days', '90d': '-90 days', '6month': '-6 month', '12month': '-12 month' }[chartPeriod] || '-6 month';
-        const chartQuery = `SELECT strftime('%Y-%m', data_saida) as mes, SUM(total) as valor FROM ordens_servico WHERE status = 'Concluída' AND data_saida >= date('now', '${chartDateFilter}') GROUP BY mes ORDER BY mes ASC`;
+        const chartQuery = `SELECT strftime('%Y-%m', COALESCE(data_saida, data_entrada)) as mes, SUM(total) as valor FROM ordens_servico WHERE status = 'Concluída' AND COALESCE(data_saida, data_entrada) >= date('now', '${chartDateFilter}') GROUP BY mes ORDER BY mes ASC`;
         const employeesQuery = 'SELECT id, nome FROM usuarios ORDER BY nome';
 
         const [osResult, chartResult, employeesResult] = await Promise.all([

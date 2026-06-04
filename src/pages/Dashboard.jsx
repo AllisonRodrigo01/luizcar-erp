@@ -72,17 +72,17 @@ const Dashboard = () => {
           api.query("SELECT COUNT(*) as total FROM veiculos"),
           api.query("SELECT COUNT(*) as total FROM ordens_servico WHERE status NOT IN ('Concluída','Cancelada')"),
           api.execute({
-            sql: "SELECT COALESCE(SUM(total),0) as total FROM ordens_servico WHERE status='Concluída' AND strftime('%Y-%m', data_saida) = ?",
+            sql: "SELECT COALESCE(SUM(total),0) as total FROM ordens_servico WHERE status='Concluída' AND COALESCE(strftime('%Y-%m', data_saida), strftime('%Y-%m', data_entrada)) = ?",
             args: [mesAtual]
           }),
           api.execute({
-            sql: "SELECT COUNT(*) as total FROM ordens_servico WHERE status='Concluída' AND strftime('%Y-%m', data_saida) = ?",
+            sql: "SELECT COUNT(*) as total FROM ordens_servico WHERE status='Concluída' AND COALESCE(strftime('%Y-%m', data_saida), strftime('%Y-%m', data_entrada)) = ?",
             args: [mesAtual]
           }),
           api.query(`
-            SELECT strftime('%Y-%m', data_saida) as mes, SUM(total) as receitas
+            SELECT strftime('%Y-%m', COALESCE(data_saida, data_entrada)) as mes, SUM(total) as receitas
             FROM ordens_servico
-            WHERE status = 'Concluída' AND data_saida >= date('now', '${dateFilter}')
+            WHERE status = 'Concluída' AND COALESCE(data_saida, data_entrada) >= date('now', '${dateFilter}')
             GROUP BY mes ORDER BY mes ASC
           `),
           api.query(`
